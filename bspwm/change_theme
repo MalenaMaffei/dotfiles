@@ -18,7 +18,7 @@ cp "${themeDir}/Xresources" ~/.Xresources
 cp "${themeDir}/termcolors" ~/.config/bash/colors
 #cp "${themeDir}/gtk.css" ~/.themes/Custom/gtk-3.0/gtk.css
 #cp "${themeDir}/settings.ini" ~/.themes/Custom/gtk-3.0/settings.ini
-cp "${themeDir}/theme.lua" ~/.config/luakit/theme.lua
+#cp "${themeDir}/theme.lua" ~/.config/luakit/theme.lua
 
 # Extract colors
 eval "$(xres2var)"

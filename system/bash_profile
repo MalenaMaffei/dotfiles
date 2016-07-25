@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+source ~/.config/bash/bashrc
+
+[[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && exec startx

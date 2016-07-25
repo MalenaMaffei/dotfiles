@@ -17,6 +17,10 @@
   ~/.config/user-dirs.dirs: 'system/user-dirs.dirs',
   ~/.config/fontconfig/conf.d/fonts.conf: 'system/fonts.conf',
   ~/.vim: 'vim',
+  ~/.Xresources: 'system/Xresources',
+  ~/.xinitrc: 'system/xinitrc',
+  ~/.bashrc: 'bash/bashrc',
+  ~/.bash_profile: 'system/bash_profile',
 }
 
 - shell: []

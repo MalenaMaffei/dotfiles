@@ -1,0 +1,35 @@
+#!/bin/sh
+
+echo 'Reading ~/.xinitrc' > ~/.xinit.log
+
+if [[ -f "${HOME}/.Xresources" ]]; then
+  echo 'Merging .xResources' >> ~/.xinit.log
+  xrdb -merge "${HOME}/.Xresources"
+fi
+
+echo 'Starting daemons' >> ~/.xinit.log
+#/usr/bin/VBoxClient-all 2>&1 >> ~/.xinit.log &
+
+echo 'Setting cursor-type' >> ~/.xinit.log
+xsetroot -cursor_name left_ptr &
+
+# Configure monitor power management: standby / suspend / off in seconds
+echo 'Setting dpms' >> ~/.xinit.log
+xset dpms 600 1200 1800 &
+
+#~/code/shell/awde/src/statusbar.bash &
+
+rm /tmp/.displays
+rm /tmp/.wallpaper
+
+echo 'Starting Window-Manager' >> ~/.xinit.log
+#exec startxfce4
+#exec i3 2>&1 >> ~/.xinit.log
+#exec budgie-desktop 2>&1 >> ~/.xinit.log
+#exec gnome-session --session=budgie-desktop --debug --disable-acceleration-check $*
+#~/.config/bspwm/bspwmrc 1> ~/.bspwm.out 2> ~/.bspwm.err
+
+# Enable theme changer
+#(sleep 5s && ~/.config/bspwm/change_theme 'y') &
+
+exec bspwm 1> ~/.bspwm.out 2> ~/.bspwm.err
