@@ -1,0 +1,183 @@
+#!/usr/bin/env bash
+
+function handle_crossback(){
+  local choices="back"
+  for i in $(seq 0 3 30); do
+    choices+="\n${i}"
+  done
+
+  local userChoice=$(echo -e "${choices}" | custom_dmenu)
+  if [[ "${userChoice}" == "back" ]]; then
+    handle_playback
+  elif [[ "${userChoice}" != "" ]]; then
+    mpc crossback "${userChoice}"
+  fi
+}
+
+function handle_seek(){
+  local choices="back"
+  for i in $(seq 0 5 100); do
+    choices+="\n${i}"
+  done
+
+  local userChoice=$(echo -e "${choices}" | custom_dmenu)
+  if [[ "${userChoice}" == "back" ]]; then
+    handle_playback
+  elif [[ "${userChoice}" != "" ]]; then
+    mpc seek "${userChoice}"
+  fi
+}
+
+function handle_volume(){
+  local choices="back"
+  for i in $(seq 0 5 100); do
+    choices+="\n${i}"
+  done
+
+  local userChoice=$(echo -e "${choices}" | custom_dmenu)
+  if [[ "${userChoice}" == "back" ]]; then
+    handle_playback
+  elif [[ "${userChoice}" != "" ]]; then
+    mpc volume "${userChoice}"
+  fi
+}
+
+function handle_playback(){
+  local mpdInfo=$(mpc)
+
+  local randomInfo=$(echo "${mpdInfo}" | grep -o -E 'random: (on|off)' | tr -d '\n ' | awk -F ':' '{print $2}')
+  local repeatInfo=$(echo "${mpdInfo}" | grep -o -E 'repeat: (on|off)' | tr -d '\n ' | awk -F ':' '{print $2}')
+  local singleInfo=$(echo "${mpdInfo}" | grep -o -E 'single: (on|off)' | tr -d '\n ' | awk -F ':' '{print $2}')
+  local consumeInfo=$(echo "${mpdInfo}" | grep -o -E 'consume: (on|off)' | tr -d '\n ' | awk -F ':' '{print $2}')
+
+  local userChoice=$(echo -e "back\nconsume (${consumeInfo})\ncrossback\nnext\npause\nplay\nprevious\nrandom (${randomInfo})\nrepeat (${repeatInfo})\nseek\nshuffle\nsingle (${singleInfo})\nstop\ntoggle\nvolume" | custom_dmenu)
+
+  [[ "${userChoice}" == "" ]] && exit
+
+  case "${userChoice}" in
+    'back') handle_main;;
+    'consume'*) mpc consume;;
+    'crossback') handle_crossback;;
+    'next') mpc next;;
+    'pause') mpc pause;;
+    'play') mpc play;;
+    'previous') mpc previous;;
+    'random'*) mpc random;;
+    'repeat'*) mpc repeat;;
+    'seek') handle_seek;;
+    'shuffle') mpc shuffle;;
+    'single'*) mpc single;;
+    'stop') mpc stop;;
+    'toggle') mpc toggle;;
+    'volume') handle_volume;;
+  esac
+
+  handle_playback
+}
+
+function __query(){
+  local artist="${1}"
+  local album="${2}"
+  local title="${3}"
+  local what="${4}"
+  local how="${5:-list}"
+  local cond=""
+
+  if [[ "${artist}" != "" ]] && [[ "${artist}" != "any" ]]; then
+    cond+="artist \"${artist}\" "
+  fi
+
+  if [[ "${album}" != "" ]] && [[ "${album}" != "any" ]]; then
+    cond+="album \"${album}\""
+  fi
+
+  if [[ "${title}" != "" ]] && [[ "${title}" != "any" ]]; then
+    cond+="title \"${title}\""
+  fi
+
+  #notify-send "DEBUG: mpc ${how} ${what} ${cond}"
+  if [[ "${how}" == 'list' ]]; then
+    echo 'any'
+  fi
+  eval mpc "${how}" "${what}" ${cond}
+}
+
+function handle_search(){
+  local userChoice=$(echo -e "by: Artist\nby: Album\nby: Title" | custom_dmenu)
+  local artist=""
+  local album=""
+  local title=""
+  
+  # { echo 'all'; mpc list artist; } | custom_dmenu
+
+  #__search | custom_dmenu
+  #exit
+
+  case "${userChoice}" in
+    *'Artist'*)
+      local artist=$(__query "${artist}" "${album}" "${title}" 'artist' | custom_dmenu)
+      local album=$(__query "${artist}" "${album}" "${title}" 'album' | custom_dmenu)
+      local title=$(__query "${artist}" "${album}" "${title}" 'title' | custom_dmenu)
+    ;;
+    *'Album'*)
+      local album=$(__query "${artist}" "${album}" "${title}" 'album' | custom_dmenu)
+      local title=$(__query "${artist}" "${album}" "${title}" 'title' | custom_dmenu)
+    ;;
+    *'Title'*)
+      local title=$(__query "${artist}" "${album}" "${title}" 'title' | custom_dmenu)
+    ;;
+  esac
+
+  [[ "${title}" == "" ]] && exit
+
+  echo "${artist}|${album}|${title}"
+}
+
+function handle_list(){
+  mpc playlist | custom_dmenu
+  handle_playlist
+}
+
+function handle_playlist(){
+  local userChoice=$(echo -e "back\nadd\nclear\ndelete\ncrop\ninsert\nlist\nload\nmove\nremove\nsave" | custom_dmenu)
+  local artist=""
+  local album=""
+  local title=""
+  local track=""
+
+  [[ "${userChoice}" == "" ]] && exit
+  
+  case "${userChoice}" in
+    'add'|'insert') local songChoice=$(handle_search);;
+    'back') handle_main; return;;
+    'clear') mpc clear;;
+    'crop') mpc crop;;
+    'list') handle_list;;
+  esac
+
+  if [[ "${songChoice}" != "" ]]; then
+    local artist=$(echo "${songChoice}" | awk -F '|' '{print $1}')
+    local album=$(echo "${songChoice}" | awk -F '|' '{print $2}')
+    local title=$(echo "${songChoice}" | awk -F '|' '{print $3}')
+    local track=$(__query "${artist}" "${album}" "${title}" '' "search")
+
+    case "${userChoice}" in
+      'add') echo -e "${track}" | mpc add;;
+      #'delete') mpc del "${track}";;
+      'insert') echo -e "${track}" | mpc insert;;
+    esac
+  fi
+
+  handle_playlist
+}
+
+function handle_main(){
+  local userChoice=$(echo -e "Playback\nPlaylist" | custom_dmenu)
+
+  case "${userChoice}" in
+    'Playback') handle_playback;;
+    'Playlist') handle_playlist;;
+  esac
+}
+
+handle_main

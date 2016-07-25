@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+exit
+
+# Desktop 1: Internet
+bspc rule -a Firefox desktop='^1'
+
+# Desktop 2: Command line
+bspc rule -a Termite desktop='^2'
+
+# Desktop 3: Coding
+bspc rule -a "Sublime Text" desktop='^3'
+
+# Desktop 9: IRC + Mails
+bspc rule -a Hexchat desktop='^9'
+bspc rule -a Thunderbird desktop='^9'

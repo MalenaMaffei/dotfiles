@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+color00="18/18/18"
+color01="5D/66/5E"
+color02="89/75/6C"
+color03="6E/89/6A"
+color04="93/98/6D"
+color05="A4/A0/93"
+color06="7C/85/87"
+color07="D8/D8/D8"
+color08="58/58/58"
+color09="5D/66/5E"
+color10="89/75/6C"
+color11="6E/89/6A"
+color12="93/98/6D"
+color13="A4/A0/93"
+color14="7C/85/87"
+color15="F8/F8/F8"
+color_foreground="A4/A0/93"
+color_background="18/18/18"
+color_cursor="A4/A0/93"
+printf_template="\033]4;%d;rgb:%s\033\\"
+printf_template_var="\033]%d;rgb:%s\033\\"
+printf_template_custom="\033]%s%s\033\\"
+printf $printf_template 0  $color00
+printf $printf_template 1  $color01
+printf $printf_template 2  $color02
+printf $printf_template 3  $color03
+printf $printf_template 4  $color04
+printf $printf_template 5  $color05
+printf $printf_template 6  $color06
+printf $printf_template 7  $color07
+printf $printf_template 8  $color08
+printf $printf_template 9  $color09
+printf $printf_template 10 $color10
+printf $printf_template 11 $color11
+printf $printf_template 12 $color12
+printf $printf_template 13 $color13
+printf $printf_template 14 $color14
+printf $printf_template 15 $color15
+printf $printf_template_var 10 $color_foreground
+printf $printf_template_var 11 $color_background
+printf $printf_template_custom 12 ";7"

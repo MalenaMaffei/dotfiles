@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+export BROWSER="firefox"
+export EDITOR="vim"
+export PAGER="less"
+export MAIL="~/mail"

@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+
+while [[ 1 ]]; do
+  xrandrOut=$(xrandr)
+
+  hdmiName=$(echo "${xrandrOut}" | grep -i 'HDMI' | awk '{print $1}')
+  vgaName=$(echo "${xrandrOut}" | grep -i 'VGA' | awk '{print $1}')
+  edpName=$(echo "${xrandrOut}" | grep -i 'EDP' | awk '{print $1}')
+
+  activeDisplays=$(echo "${xrandrOut}" | grep " connected" | sed -e "s/\([A-Z0-9]\+\) connected.*/\1/" | tr '\n' ' ')
+  displayFile='/tmp/.displays'
+  desktopFile='/tmp/.desktop'
+  primaryDisplay=""
+
+  if [[ -f "${displayFile}" ]]; then
+      oldDisplays=$(cat "${displayFile}")
+  else
+      oldDisplays=""
+  fi
+
+  if [[ "${oldDisplays}" != "${activeDisplays}" ]]; then
+      change="yes"
+  else
+      change="no"
+  fi
+
+  if [[ "$activeDisplays" =~ "${hdmiName}" ]]; then
+    primaryDisplay="${hdmiName}"
+  # External, VGA
+  elif [[ "$activeDisplays" =~ "${vgaName}" ]]; then
+    primaryDisplay="${vgaName}"
+  # Only one internal
+  elif [[ "$activeDisplays" =~ "${edpName}" ]]; then
+    primaryDisplay="${edpName}"
+  fi
+
+  if [[ "${change}" == "yes" ]]; then
+    primaryMode=$(xrandr | grep "${primaryDisplay}" -A 1 | tail -n 1 | awk -F ' ' '{print $1}')
+    notify-send -u normal "Change display to \"${primaryDisplay}\"."
+
+    cmd='xrandr'
+    for displayName in ${activeDisplays}; do
+      if [[ "${displayName}" != "${primaryDisplay}" ]]; then
+        cmd+=" --output ${displayName} --off"
+      else
+        cmd+=" --output ${displayName} --primary --preferred --mode ${primaryMode}"
+      fi
+    done
+
+    echo "$(bspc query -D -d)" > "${desktopFile}"
+    ${cmd}
+
+    echo "${activeDisplays}" > "${displayFile}"
+    ~/.config/bspwm/bspwmrc 'refresh'
+  fi
+
+  if  [[ "${1}" == 'once' ]]; then
+    break
+  else
+    if [[ "${change}" == "yes" ]]; then
+      sleep 4
+    else
+      sleep 1
+    fi
+  fi
+done
+
+echo "${primaryDisplay}"

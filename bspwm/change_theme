@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+
+if [[ "${1}" != '' && "${1}" != 'n' ]]; then
+  "${scriptDir}/change_wallpaper" "${1}"
+fi
+
+notify-send -u low "Changing theme."
+themeDir=$(cat /tmp/.wallpaper | img2thm | awk -F '"' '{print $4}' | tr -d '"')
+
+if [[ ! -d "${themeDir}" ]]; then
+  notify-send "Warning: Cannot change theme: Theme directory \"${themeDir}\" not found."
+  exit
+fi
+
+cp "${themeDir}/Xresources" ~/.Xresources
+cp "${themeDir}/termcolors" ~/.config/bash/colors
+#cp "${themeDir}/gtk.css" ~/.themes/Custom/gtk-3.0/gtk.css
+#cp "${themeDir}/settings.ini" ~/.themes/Custom/gtk-3.0/settings.ini
+cp "${themeDir}/theme.lua" ~/.config/luakit/theme.lua
+
+# Extract colors
+eval "$(xres2var)"
+
+# Update panel
+kill $(pgrep -f panel) 2>&1 >/dev/null
+~/.config/bspwm/panel &
+
+# Update bspwm
+bspc config active_border_color "${base06}"
+bspc config focused_border_color "${base06}"
+bspc config normal_border_color "${base01}"
+bspc config presel_border_color "${base0C}"
+bspc config urgent_border_color "${base08}"
+
+# Update dunst
+sed -i 's/color.*/color = "'"${base02}"'"/' ~/.config/dunst/dunstrc
+sed -i 's/separator_color.*/separator_color = "'"${base03}"'"/' ~/.config/dunst/dunstrc
+sed -i 's/background.*/background = "'"${base00}"'"/' ~/.config/dunst/dunstrc
+#sed -i 's/foreground.*/foreground = "'"${LOW_COLOR}"'"/1' ~/.config/dunst/dunstrc
+sed -i 's/foreground.*/foreground = "'"${base0F}"'"/g' ~/.config/dunst/dunstrc
+#sed -i 's/foreground.*/foreground = "'"${CRT_COLOR}"'"/3' ~/.config/dunst/dunstrc
+[[ $(pgrep 'dunst') ]] && kill $(pgrep dunst)
+dunst &
+
+#"${scriptDir}/reload_theme"
+col2sys
+
+notify-send -u low "Theme changed."

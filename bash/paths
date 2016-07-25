@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+export PATH="${PATH}:~/.config/bash/scripts"
+export PATH="${PATH}:~/code/shell/wp-themes/src"
+export PATH="${PATH}:~/code/shell/udsys/src"
+
+#export PATH="$PATH:./node_modules/.bin"
+#export PATH="$PATH:/opt/racer/target/debug/"
+
+#if which ruby >/dev/null && which gem >/dev/null; then
+#    PATH="$(ruby -rubygems -e 'puts Gem.user_dir')/bin:$PATH"
+#fi
+
+#export RUST_SRC_PATH="/opt/rust/src"

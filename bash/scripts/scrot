@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+scrotPath="${HOME}/pictures/screenshots/$(date +%Y%m%d_%H%M%S).png"
+
+if [[ "${1}" == 'area' ]]; then
+  maim -s -c 0.1,0.05,0.3,1 "${scrotPath}" && echo "${scrotPath}" && notify-send -a maim -u low "Took a screenshot (area)."
+elif [[ "${1}" == 'window' ]]; then
+  maim -i $(xdotool getactivewindow) "${scrotPath}" && echo "${scrotPath}" && notify-send -a maim -u low "Took a screenshot (window)."
+else
+  maim "${scrotPath}" && echo "${scrotPath}" && notify-send -a maim -u low "Took a screenshot (full screen)."
+fi

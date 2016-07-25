@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+# ii2txt
+channel="#${1}"
+
+function read_irc_line(){
+  local otherColor="\e[34m"
+  local highColor="\e[37m"
+  local normColor="\e[39m"
+
+  local dateStr=$(echo "${1}" | awk -F ' ' '{print $1}')
+  local timeStr=$(echo "${1}" | awk -F ' ' '{print $2}')
+  local userStr=$(echo "${1}" | awk -F ' ' '{print $3}' | tr -d '<>')
+
+  # Get the message and remove unprintable symbols
+  local msgStr=$(echo "${1}" | cut -d " " -f 4- | tr -dc '[[:print:]]')
+
+  if [[ "${#msgStr}" -le 50 ]]; then
+    local shortMsg="${msgStr}"
+  else
+    local shortMsg=$(echo "${msgStr}" | cut -c -48)" …"
+  fi
+
+  if [[ "${msgStr}" == *"Anachron"* ]]; then
+    notify-send -u low -a ii "${userStr} said:" "${shortMsg}"
+    msgStr="${highColor}${msgStr}${normColor}"
+  fi
+
+  printf '\n%b\n' "[${otherColor}${timeStr}${normColor}] (${otherColor}${userStr}${normColor})\n${msgStr}"
+}
+
+# invisible cursor
+tput civis
+
+# disable user input
+stty -echo
+
+trap 'stty echo; tput cnorm' SIGHUP SIGINT SIGTERM
+
+# Remove trap to display line before and after command
+trap - DEBUG
+
+clear
+tail -f "${HOME}/irc/irc.freenode.net/${channel}/out" | grep -v --line-buffered -e 'joined\|left\|mode' | while IFS= read -r line; do
+  read_irc_line "${line}"
+done
+
+# Echo empty line before any command, from http://stackoverflow.com/a/32854379
+trap 'echo' DEBUG
+
+# normal cursor
+tput cnorm
+
+# enable user input
+stty echo
+
+# tail -f <PIPE> | grep -v --line-buffered -e 'joined\|left'

@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+if [[ -f "${1}" ]]; then
+  wallpaperImage="${1}"
+else
+  allImages=$(find "${HOME}/pictures/wallpapers" -maxdepth 1 -type f -exec file {} \; | awk -F: '{if ($2 ~/image/) print $1}')
+  wallpaperImage=$(echo "${allImages}" | sort -R | head -n 1)
+fi
+
+#wallpaperImage="/home/arch/pictures/wallpapers/03.jpg"
+#wallpaperImage="/data/_old/pictures/wallpapers/others/sushi_time_by_sant.jpg"
+setroot -z "${wallpaperImage}"
+echo "${wallpaperImage}" > '/tmp/.wallpaper'

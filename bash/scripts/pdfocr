@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+# $1 is the first argument    
+# remove result.txt    
+rm result.txt
+
+# convert the pdf to a group of tiffs    
+gs -dNOPAUSE -dBATCH -sDEVICE=tiffg4 -sOutputFile=scan_%d.tif $1
+i=1
+while [ $i -ge 0 ] ; do 
+  if [ -a scan_$i.tif ]; then 
+    tesseract scan_$i.tif scan_$i
+
+    # add the text to the result.txt file
+    #cat scan_$i.txt >> result.txt 
+    rm scan_$i.tif #scan_$i.txt 
+    i=$(( $i + 1 )) 
+  else
+    i=-100
+  fi
+
+done

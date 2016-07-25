@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+# Please take a look at https://wiki.archlinux.org/index.php/default_applications
+# on how xdg chooses the default application for files/folders, especially
+# https://wiki.archlinux.org/index.php/default_applications#Default_mimeapps.list_files
+# to overwrote those settings on a per-user level
+
+# Mime cache is here: /usr/share/applications/mimeinfo.cache
+# All possible mime types here: /usr/share/mime/types
+#
+# System mappings:
+# /usr/local/share/applications/mimeapps.list
+# /usr/share/applications/mimeapps.list
+# /usr/share/applications/mimeinfo.cache
+
+#update-desktop-database
+
+AUDIO_PLAYER=${AUDIO:-lollypop}
+FILE_MANAGER=${FILE_MANAGER:-org.gnome.Nautilus}
+IMAGE_VIEWER=${IMAGE_VIEWER:-eog}
+IMAGE_EDITOR=${IMAGE_EDITOR:-gimp}
+TEXT_EDITOR=${EDITOR:-subl3}
+VIDEO_PLAYER=${VIDEO_PLAYER:-vlc}
+WEB_BROWSER=${BROWSER:-firefox}
+
+xdg-mime default "${TEXT_EDITOR}.desktop" $(grep text/ /usr/share/mime/types | tr '\n' ' ')
+xdg-mime default "${TEXT_EDITOR}.desktop" 'text/x-shellscript'
+xdg-mime default "${WEB_BROWSER}.desktop" $(grep text/html /usr/share/mime/types | tr '\n' ' ')
+xdg-mime default "${IMAGE_VIEWER}.desktop" $(grep image/ /usr/share/mime/types | tr '\n' ' ')
+xdg-mime default "${VIDEO_PLAYER}.desktop" $(grep 'video/' /usr/share/mime/types | tr '\n' ' ')
+xdg-mime default "${FILE_MANAGER}.desktop" "inode/directory"
+
+sudo update-desktop-database

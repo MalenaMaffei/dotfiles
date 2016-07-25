@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+
+function command_not_found_handle () {
+  >&2 echo "
+  ┌──────────────────┐
+  │ Unknown command! │
+  └────. .───────────┘
+        V
+       ╭─╮
+       ⌾ ⌾
+       │▕│
+       ╰─╯" 
+  return 127
+}
+
+function shell_prompt () {
+  local rc=$?
+
+  local baseName=$(basename "${PWD}")
+
+  # If PWD is directly under root (/),
+  # also display the /
+  if [[ "${PWD}" == "/${baseName}" ]]; then
+    local baseName="${PWD}"
+  fi
+
+  PS1=""
+  case "${PWD}" in
+    /bin*|/boot*|/dev*|/etc*|/lib*|/lost+found*|/mnt*|/proc*|/run*|/sbin|/sys*|/usr*|/var*)
+      PS1+="  "
+      ;;
+    /home*)
+      PS1+="  "
+      ;;
+    /root*)
+      PS1+="  "
+      ;;
+    *)
+      PS1+="  "
+      ;;
+  esac
+
+  local startColor="\[\e[0;33m\]"
+  local endColor="\[\e[0m\]"
+
+  PS1+="${startColor}${baseName}${endColor} "
+
+  local startColor="\[\e[0;31m\]"
+  local endColor="\[\e[0m\]"
+
+  if [[ "${rc}" -eq 0 ]]; then
+    PS1+=" "
+  else
+    PS1+=" "
+  fi
+
+  # Echo empty line before any command, from http://stackoverflow.com/a/32854379
+  trap 'echo' DEBUG
+}
+
+export -f shell_prompt
+export -f command_not_found_handle
+
+export PROMPT_COMMAND='shell_prompt'

@@ -1,0 +1,34 @@
+#!/bin/bash
+
+function custom_dmenu(){
+  local height="${PANEL_HEIGHT:-25px}"
+  local width="${PANEL_WIDTH:-100%}"
+
+  while getopts ':h:w:' o; do
+    case "$o" in
+      h) height="$OPTARG" && shift;;
+      w) width="${OPTARG}" && shift;;
+    esac
+  done
+
+  if [[ "${height}" == *%* ]]; then
+    local screenHeight=$(xrandr --current | grep '*' | uniq | awk '{print $1}' | cut -d 'x' -f2)
+    local height=$(echo "${height}" | tr -d '%')
+    local height=$(echo "${screenHeight} * ${height} / 100" | bc -s)
+  else
+    local height=$(echo "${height}" | tr -d 'px')
+  fi
+
+  if [[ "${width}" == *%* ]]; then
+    local screenWidth=$(xrandr --current | grep '*' | uniq | awk '{print $1}' | cut -d 'x' -f1)
+    local width=$(echo "${width}" | tr -d '%')
+    local width=$(echo "${screenWidth} * ${width} / 100" | bc -s)
+  else
+    local width=$(echo "${width}" | tr -d 'px')
+  fi
+
+  local cmdStr="dmenu -h ${height} -w ${width}"
+  ${cmdStr}
+}
+
+export -f custom_dmenu

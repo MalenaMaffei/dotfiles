@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+readonly PANEL_HEIGHT=25
+readonly PANEL_POSITION='top'
+readonly PANEL_WIDTH='75%'
+
+export PANEL_HEIGHT PANEL_POSITION PANEL_WIDTH

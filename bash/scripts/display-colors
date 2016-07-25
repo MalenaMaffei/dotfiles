@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+
+function get_weather(){
+  CITY_ID="${1}"
+  API_KEY="44db6a862fba0b067b1930da0d769e98"
+  WEATHER_URL="http://api.openweathermap.org/data/2.5/weather?id=${CITY_ID}&appid=${API_KEY}&units=metric"
+
+  WEATHER_INFO=$(wget -qO- "${WEATHER_URL}")
+  WEATHER_MAIN=$(echo "${WEATHER_INFO}" | grep -o -e '\"main\":\"[a-Z]*\"' | awk -F ':' '{print $2}' | tr -d '"')
+  WEATHER_TEMP=$(echo "${WEATHER_INFO}" | grep -o -e '\"temp\":\-\?[0-9]*' | awk -F ':' '{print $2}' | tr -d '"')
+}
+
+bld=$'\e[1m'
+rst=$'\e[0m'
+cols=$(tput cols)
+
+textBld='ArchLinux'
+textNor='LinuxRocks'
+textBkg='         '
+
+get_weather 2910831
+echo "${WEATHER_INFO}"
+exit
+
+#echo -e "\n--------- Background Colors ---------\n"
+
+for h in $(seq 41 47); do
+  echo -ne " \e[1;${h}m""◑ ${textBkg}""${rst}\t"
+  echo -ne " \e[0;${h}m""◐ ${textBkg}""${rst}\n"
+  #if [[ "${h}" -le 44 ]]; then
+    #echo -e "\e[1;${h}m""${bld}⬓ - ${h} - Bold""${rst}"
+  #else
+ #   
+  #fi
+  #echo -e "\e[0;${h}m""${bld}⊞ | ${h} | Bold""${rst}"
+done
+
+echo ''
+
+#echo -e "\n--------- Foreground Colors ---------\n"
+
+for i in $(seq 31 38); do
+  echo -ne " \e[0;${i}m""◓ ${textNor}""${rst}\t"
+  echo -ne " \e[1;${i}m""${bld}◒ ${textBld}""${rst}\n"
+done
+
+#echo -e "\n--------- Primary Colors ---------\n"
+#echo ''
+
+#for j in 40; do
+  #echo -e "\e[0;${j}m""${char} ""${rst}"
+#done | column -c "${cols}"
+
+exit
+
+f=3 b=4
+for j in f b; do
+  for i in {0..7}; do
+    printf -v $j$i %b "\e[${!j}${i}m"
+  done
+done
+
+
+echo -e " ${f1}█${f2}█${f3}█${f4}█\tNormal"
+echo -e " ${bld}${f1}█${f2}█${f3}█${f4}█\tBold${rst}"

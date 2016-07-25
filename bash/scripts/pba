@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+
+cmdStr=""
+declare -a fileList
+contents=""
+verbose=0
+uuidList="${HOME}/.pastebin.list"
+
+function add_file(){
+  [[ "${1}" == "" ]] && return
+
+  if [[ -f "${1}" ]]; then
+    [[ "${verbose}" -eq 1 ]] && echo "[INFO] Added file \"${1}\""
+    fileList+=("${1}")
+  fi
+}
+
+function parse_line(){
+  local line="${1}"
+
+  # If directory, take all files inside on one level
+  if [[ -d "${line}" ]]; then
+    [[ "${verbose}" -eq 1 ]] && echo "[INFO] Added directory \"${line}\""
+    for fName in $(find "${line}" -maxdepth 1 -type f); do
+    # | while read fName; do
+      add_file "${fName}"
+    done
+  # If file, add it to the file list
+  elif [[ -f "${line}" ]]; then
+    add_file "${line}"
+  # If nothing else, it is normal text/data
+  else
+    #[[ "${verbose}" -eq 1 ]] &&  echo "[INFO] Added content"
+    contents+="${line}\n"
+  fi
+}
+
+# Check if arguments are passed
+if [[ $# -ge 1 ]]; then
+  [[ "${verbose}" -eq 1 ]] && echo "[INFO] Recieved arguments"
+  for line in ${@}; do
+    parse_line "${line}"
+  done
+# Check if stdin has data
+elif read -t 0 -N 0; then
+  [[ "${verbose}" -eq 1 ]] && echo "[INFO] Parsing stdin"
+  while read line; do
+    parse_line "${line}"
+  done < "/dev/stdin"
+fi
+
+if [[ "${fileList}" != "" && "${contents}" != "" ]]; then
+  1>&2 echo 'ERROR: Both retrived files and normal lines. This is not supported! Exiting.'
+elif [[ "${fileList}" != "" ]]; then
+  fileCount=$(echo -ne ${fileList} | wc -l)
+  # One file, easy upload
+  if [[ "${#fileList[@]}" -eq 1 ]]; then
+    for fName in ${fileList[@]}; do
+      [[ "${verbose}" -eq 1 ]] && echo "[INFO] Uploading file \"${fName}\""
+      answer=$(curl -s -F c=@${fName} -w "%{redirect_url}" https://ptpb.pw?r=1 -o /dev/stdout)
+      fileUUID=$(echo -e "${answer}" | grep -i 'uuid' | awk -F ': ' '{print $2}')
+      echo "UUID: ${fileUUID}"
+      [[ "${fileUUID}" != "" ]] && echo "${fileUUID};${fName};$(date)" >> "${uuidList}"
+      echo -e "${answer}"
+    done
+  # Multiple files, we have to archive
+  else
+    archiveName="/tmp/$(date +"%Y-%m-%d_%H_%M_%S").tgz"
+    archiveList=$(mktemp /tmp/archive-list.XXXXXX)
+    baseName=$(basename "${archiveName}")
+
+    printf "%s\n" "${fileList[@]}" > "${archiveList}"
+    [[ "${verbose}" -eq 1 ]] && echo "[INFO] Creating archive \"${archiveName}\""
+    tar -czf "${archiveName}" -T "${archiveList}" 2>/dev/null
+    [[ "${verbose}" -eq 1 ]] && echo "[INFO] Uploading archive \"${archiveName}\""
+    #-H "Content-Type: multipart/form-data"
+    answer=$(curl -s -F "c=@${archiveName}" -w "%{redirect_url}" https://ptpb.pw?r=1 -o /dev/stdout)
+    fileUUID=$(echo -e "${answer}" | grep -i 'uuid' | awk -F ': ' '{print $2}')
+    [[ "${fileUUID}" != "" ]] && echo "${fileUUID};${archiveName};$(date)" >> "${uuidList}"
+    echo -e "${answer}"
+    rm "${archiveList}"
+  fi
+elif [[ "${contents}" != "" ]]; then
+  answer=$(echo -en "${contents}" | curl -s -F c=@- -w "%{redirect_url}" https://ptpb.pw?r=1 -o /dev/stdout)
+  fileUUID=$(echo -e "${answer}" | grep -i 'uuid' | awk -F ': ' '{print $2}')
+  [[ "${fileUUID}" != "" ]] && echo "${fileUUID};text;$(date)" >> "${uuidList}"
+  echo -e "${answer}"
+# Nothing is specified, exit
+else
+  exit
+fi

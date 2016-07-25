@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+imageDir=${1:-$HOME/pictures/wallpapers/}
+num=0
+picList=""
+
+# Kill dunst so we don't see the notifications on screenshots
+#kill $(pgrep -f dunst) 2>&1 >/dev/null
+
+for fName in "${imageDir}"*; do
+  if [[ -f "${fName}" ]]; then
+    num=$((${num} +1))
+    "${scriptDir}/change_theme" "${fName}"
+    termite -e "bash -i -c 'vim ~/.vimrc'" --name 'vim-edit'
+    sleep 0.7s
+    picList+="$(~/.config/bash/scripts/scrot) "
+  fi
+done
+
+# Restart dunst
+#dunst &
+
+notify-send -u 'low' "Converting ${num} screenshots!"
+
+for fileName in ${picList}; do
+  dirName=$(dirname ${fileName})
+  baseName=$(basename "${fileName}")
+  newName=$(echo "${dirName}/reduced/${baseName}" | sed 's/png/jpg/g')
+  #notify-send -u 'low' "Modify ${fileName}"
+  convert "${fileName}" "${newName}"
+done
+
+notify-send -u 'low' "Took ${num} screenshots!"

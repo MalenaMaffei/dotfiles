@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+uuidList="${HOME}/.pastebin.list"
+
+function parse_line(){
+  if [[ "$(echo -n ${1} | grep -x -o -E '[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}' != "" ]]; then
+    answer=$(curl -s -X DELETE "https://ptpb.pw/${1}" -o /dev/stdout)
+    deleteText=$(echo -e "${answer}" | grep -o -i 'deleted')
+    if [[ "${deleteText}" == 'deleted' ]]; then
+      sed -i "/${1}/d" "${uuidList}"
+    fi
+    echo -e "${answer}"
+  fi
+}
+
+if [[ $# -ge 1 ]]; then
+  for line in ${@}; do
+    parse_line "${line}"
+  done
+# Check if stdin has data
+elif read -t 0 -N 0; then
+  while read line; do
+    parse_line "${line}"
+  done < "/dev/stdin"
+fi

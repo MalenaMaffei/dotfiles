@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+
+UP_ACTION=".."
+EXIT_ACTION=":e"
+USERHOME_ACTION=":u"
+ROOT_ACTION=":r"
+OPEN_ACTION=":o"
+HIDDEN_ACTION=":h" # Toggle hidden files/folders
+
+tmpFile="/tmp/.dmenu-fm"
+
+[[ -f "${tmpFile}" ]] && curPath=$(cat "${tmpFile}")
+curPath="${curPath:-$HOME}"
+
+HIDDEN_FILES=0
+
+# Please take a look at https://wiki.archlinux.org/index.php/default_applications
+# on how xdg chooses the default application for files/folders
+
+while [[ 1 ]]; do
+  #[[ "${curPath}" != *"/" ]] && curPath="${curPath}/"
+
+  # Append slash after path for correct behavior of find to not find this directory but everything inside
+  dirList=$(find "${curPath}/" -maxdepth 1 -xtype d | sort)
+  fileList=$(find "${curPath}/" -maxdepth 1 -xtype f | grep -v '\/\.' | sort)
+
+  if [[ "${HIDDEN_FILES}" -eq 0 ]]; then
+    dirList=$(echo -e "${dirList}" | grep -v '\/\.')
+    fileList=$(echo -e "${fileList}" | grep -v '\/\.')
+  fi
+
+  actionList="${UP_ACTION}\n"
+  fullList="${actionList}${dirList}\n${fileList}"
+
+  # Display list, replace current path with nothing (make it short), skip empty lines and pass it to dmenu
+  newPath=$(echo -e "${fullList}" | sed "s|${curPath}/||" | grep -v -e '^$' | custom_dmenu $*)
+  #notify-send "Selected: \"${newPath}\""
+
+  if [[ "${newPath}" == "${EXIT_ACTION}" ]]; then
+    echo -n "${curPath}" > "${tmpFile}"
+    break
+  elif [[ "${newPath}" == "${HIDDEN_ACTION}" ]]; then
+    HIDDEN_FILES=!${HIDDEN_FILES}
+  elif [[ "${newPath}" == "${UP_ACTION}" ]]; then
+    curPath=$(dirname "${curPath}")
+  elif [[ "${newPath}" == "${ROOT_ACTION}" ]]; then
+    curPath='/'
+  elif [[ "${newPath}" == "${USERHOME_ACTION}" ]]; then
+    curPath="${HOME}"
+  elif [[ "${newPath}" == "${OPEN_ACTION}" ]]; then
+    (xdg-open "${curPath}" 2>/dev/null) &
+    echo -n "${curPath}" > "${tmpFile}"
+    break
+  elif [[ "${newPath}" != "" ]]; then
+    # Go relatively to paths like documents
+    if [[ -e "${curPath}/${newPath}" ]]; then
+      curPath="${curPath}/${newPath}"
+    # Go directly to abpaths like /tmp
+    elif [[ "${newPath}" == /* ]] && [[ -e "${newPath}" ]]; then
+      curPath="${newPath}"
+    fi
+  else
+    echo -n "${curPath}" > "${tmpFile}"
+    break
+  fi
+
+  if [[ -f "${curPath}" ]]; then
+    (xdg-open "${curPath}" 2>/dev/null) &
+    echo -n "$(dirname ${curPath})" > "${tmpFile}"
+    break
+  fi
+
+  #notify-send "Path: \"${curPath}\""
+done

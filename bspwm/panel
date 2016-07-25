@@ -1,0 +1,199 @@
+#!/usr/bin/env bash
+
+#https://github.com/horst3180/arc-theme/blob/master/common/gtk-3.0/3.20/gtk-darker.css
+
+#BAR_BACKGROUND="#353945"
+#XRES_TEXT=$(cat ~/.Xresources)
+
+# Write xresource colors to variables
+eval "$(xres2var)"
+
+#BAR_BACKGROUND=$(echo "${XRES_TEXT}" | grep 'define base01' | awk -F ' ' '{print $3}')
+PANEL_BG="${base01}"
+
+NORMAL_FONT="FontDroid Sans"
+SYMBOL_FONT="FontAwesome"
+
+FONT_SIZE=$(echo "${PANEL_HEIGHT} / 2.5" | bc -s | sed 's/\.0*//g')
+
+#echo "Bar-Height: ${PANEL_HEIGHT}"
+
+SYMBOL_WORKSPACE_NORMAL=""
+SYMBOL_WORKSPACE_ACTIVE=""
+SYMBOL_WORKSPACE_URGENT=""
+
+#COLOR_INACTIVE="#666666"
+#COLOR_ACTIVE="#DFDFDF"
+#COLOR_INACTIVE=$(echo "${XRES_TEXT}" | grep 'define base03' | awk -F ' ' '{print $3}')
+#COLOR_ACTIVE=$(echo "${XRES_TEXT}" | grep 'define base0F' | awk -F ' ' '{print $3}')
+#COLOR_URGENT=$(echo "${XRES_TEXT}" | grep 'define base08' | awk -F ' ' '{print $3}')
+
+COLOR_INACTIVE="${base03}"
+COLOR_ACTIVE="${base0F}"
+COLOR_URGENT="${base08}"
+
+SYMBOL_FULL=""
+SYMBOL_CHARGING=""
+SYMBOL_DISCHARGING=""
+
+bspc config top_padding "${PANEL_HEIGHT}"
+
+function get_workspaces(){
+  local workSpaces=$(bspc wm -g)
+  for i in `seq 2 11`; do
+    # query bspc control for the status of the workspaces
+    local ws=$(echo "${workSpaces}" | cut -d ":" -f ${i})
+    local wsName=$(echo "${ws}" | cut -c 2-)
+    # check for urgency
+    if [[ "${ws}" == *u* ]]; then
+      #echo -n "%{F${COLOR_URGENT}}${SYMBOL_WORKSPACE_URGENT} "
+      echo -n "%{F${COLOR_URGENT}}%{U${COLOR_URGENT}}${wsName}%{U-}%{F-} "
+    # check for focused workspace
+    elif [[ "${ws}" == *O* || "${ws}" == *F* ]]; then
+      #echo -n "%{F${COLOR_ACTIVE}}${SYMBOL_WORKSPACE_ACTIVE} "
+      echo -n "%{F${COLOR_ACTIVE}}${wsName}%{F-} "
+    # unfocused, non-free desktop color
+    elif [[ "${ws}" == *o* ]]; then
+      #echo -n "%{F${COLOR_INACTIVE}}${SYMBOL_WORKSPACE_NORMAL} "
+      echo -n "%{F${COLOR_INACTIVE}}${wsName}%{F-} "
+    # free desktop color
+    else
+      #echo -n "%{F${COLOR_INACTIVE}}${SYMBOL_WORKSPACE_NORMAL} "
+      echo -n "%{F${COLOR_INACTIVE}}${wsName}%{F-} "
+    fi
+    #echo -ne "${ws:1} " # print workspaces to conky
+  done
+
+  # for i in `seq 1 10`; do
+  #   if [[ ${urgentWS} -eq ${i} ]]; then
+  #     echo -n "%{F${COLOR_URGENT}}${SYMBOL_WORKSPACE_URGENT} "
+  #   elif [[ ${activeWS} -ne ${i} ]]; then 
+  #     echo -n "%{F${COLOR_INACTIVE}}${SYMBOL_WORKSPACE_NORMAL} "
+  #   else
+  #     echo -n "%{F${COLOR_ACTIVE}}${SYMBOL_WORKSPACE_ACTIVE} "
+  #   fi
+  #   echo -n "%{F-}"
+  # done
+}
+
+function get_power(){
+  local batteryInfo=$(acpi -bi | grep "Battery 0" | head -n 1 )
+  local batteryState=$(echo "${batteryInfo}" | grep -wo "Full\|Charging\|Discharging")
+  local batteryPower=$(echo "${batteryInfo}" | grep -o '[0-9]\+%' | tr -d '%')
+
+  local suffixString=""
+
+  if [[ "${batteryState}" == "Charging" ]]; then
+    suffixString=" ${SYMBOL_CHARGING} ${batteryPower}%"
+  elif [[ "${batteryState}" == "Discharging" ]]; then
+    suffixString=" ${SYMBOL_DISCHARGING} ${batteryPower}%"
+  else
+    suffixString=" ${batteryPower}%"
+  fi
+
+  if [[ "${batteryPower}" -le 10 ]]; then
+    echo -n "%{F${COLOR_URGENT}}"
+    echo -n "${suffixString}"
+  elif [[ "${batteryPower}" -lt 40 ]]; then
+    echo -n "%{F${COLOR_ACTIVE}}"
+    echo -n ""${suffixString}
+  elif [[ "${batteryPower}" -lt 70 ]]; then
+    echo -n "%{F${COLOR_ACTIVE}}"
+    echo -n "${suffixString}"
+  elif [[ "${batteryPower}" -lt 90 ]]; then
+    echo -n "%{F${COLOR_ACTIVE}}"
+    echo -n "${suffixString}"
+  else
+    echo -n "%{F${COLOR_ACTIVE}}"
+    echo -n "${suffixString}"
+  fi
+  echo -n "%{F-}"
+}
+
+function get_volume(){
+  local soundInfo=$(amixer get Master | tail -n 1)
+  local soundState=$(echo "${soundInfo}" | grep -wo "on\|off")
+  local soundVolume=$(echo "${soundInfo}" | awk -F ' ' '{print $5}' | tr -d '[]%')
+
+  local suffixString=" ${soundVolume}%"
+
+  if [[ "${soundVolume}" -eq 0 ]] || [[ "${soundState}" == "off" ]]; then
+    echo -n "%{F${COLOR_INACTIVE}}"
+    echo -n "${suffixString}"
+  elif [[ "${soundVolume}" -lt 50 ]]; then
+    echo -n "%{F${COLOR_ACTIVE}}"
+    echo -n "${suffixString}"
+  else
+    echo -n "%{F${COLOR_ACTIVE}}"
+    echo -n "${suffixString}"
+  fi
+  echo -n "%{F-}"
+}
+
+function get_bluetooth(){
+  local btoothState=$(((RANDOM % 2)  + 1))
+
+  [[ "${btoothState}" -eq 1 ]] && echo -n "%{F${COLOR_ACTIVE}}" || echo -n "%{F${COLOR_INACTIVE}}"
+  echo -n ""
+  echo -n "%{F-}"
+}
+
+function get_microphone(){
+  local microState=$(((RANDOM % 2)  + 1))
+
+  [[ "${microState}" -eq 1 ]] && echo -n "%{F${COLOR_ACTIVE}}" || echo -n "%{F${COLOR_INACTIVE}}"
+  echo -n ""
+  echo -n "%{F-}"
+}
+
+function get_network(){
+  local networkState=$(cat /sys/class/net/wlp3s0/operstate)
+  local networkQuality=$(grep wlp3s0 /proc/net/wireless | awk '{ print int($3 * 100 / 70) }')
+  local networkSSID=$(iw dev wlp3s0 link | grep 'SSID' | awk -F ': ' '{print $2}')
+
+  local suffixString=""
+
+  [[ "${networkState}" == 'up' ]] && echo -n "%{F${COLOR_ACTIVE}}" || echo -n "%{F${COLOR_INACTIVE}}"
+  echo -n "${suffixString}"
+  echo -n "%{F-}"
+}
+
+function get_packages(){
+  local officialUpdates=$(pacman -Q -u | wc -l)
+  local aurUpdates=$(pacaur -Q -u | wc -l)
+
+  [[ "${officialUpdates}" -gt 1 || "${aurUpdates}" -gt 1 ]] && echo -n "%{F${COLOR_URGENT}}" || echo -n "%{F${COLOR_INACTIVE}}"
+  echo -n " %{F-}"
+  [[ "${officialUpdates}" -gt 1 ]] && echo -n "%{F${COLOR_URGENT}}${officialUpdates}" || echo -n "%{F${COLOR_INACTIVE}}${officialUpdates}"
+  echo -n "/"
+  [[ "${aurUpdates}" -gt 1 ]] && echo -n "%{F${COLOR_URGENT}}${aurUpdates}" || echo -n "%{F${COLOR_INACTIVE}}${aurUpdates}"
+  echo -n "%{F-}"
+}
+
+function get_title(){
+  local windowTitle=$(xdotool getwindowfocus getwindowname)
+  local maxLength=50
+
+  if [[ "${#windowTitle}" -gt "${maxLength}" ]]; then
+    echo -n "%{F${COLOR_ACTIVE}}⁖ ${windowTitle::$maxLength} …"
+  elif [[ "${#windowTitle}" -gt 0 ]]; then
+    echo -n "%{F${COLOR_ACTIVE}}⁖ ${windowTitle}"
+  else
+    echo -n "%{F${COLOR_INACTIVE}}⁖ (empty)"
+  fi
+  echo -n "%{F-}"
+}
+
+#packageUpdates=$(get_packages)
+
+# Wait 2 seconds in the background and put the lemonbar ontop of the root window
+(sleep 2 && xdo above -t $(xdo id -n root) $(xdo id -a bar)) &
+
+while [[ 1 ]]; do
+  echo -n "%{l} $(get_workspaces)"
+  echo -n "%{c}$(get_title)"
+  #echo -n "%{r}$(get_power) | $(get_packages) | $(get_microphone) | $(get_bluetooth) | $(get_network) | $(get_volume) "
+  echo -n "%{r}$(get_power) | $(get_network) | $(get_volume) | %{F${COLOR_ACTIVE}} $(date +%X) "
+  echo ""
+  sleep 0.15
+done | lemonbar -f "${NORMAL_FONT}:size=${FONT_SIZE}" -f "${SYMBOL_FONT}:size=${FONT_SIZE}" -B "${PANEL_BG}" -F "${COLOR_ACTIVE}" -g "x${PANEL_HEIGHT}"

@@ -1,0 +1,15 @@
+[Added Associations]
+inode/directory=nautilus.desktop;
+application/pdf=epdfview.desktop;
+image/jpeg=gimp.desktop;
+text/plain=sublime_text_3.desktop;gimp.desktop;
+application/x-hwp=org.gnome.FileRoller.desktop;
+application/x-wine-extension-ini=sublime_text_3.desktop;
+application/octet-stream=gimp.desktop;
+image/png=gimp.desktop;
+image/x-eps=gimp.desktop;
+application/illustrator=gimp.desktop;
+image/gif=firefox.desktop;
+application/xml=sublime_text_3.desktop;
+
+[Default Applications]

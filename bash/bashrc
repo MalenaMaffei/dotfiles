@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# [[ $- == *i* ]] -> Run only when being interactive
+[[ $- == *i* ]] && source ~/.config/bash/prompt
+[[ $- == *i* ]] && source ~/.config/bash/colors
+
+source ~/.config/bash/constants
+source ~/.config/bash/aliases
+source ~/.config/bash/defaults
+
+source ~/.config/bash/paths
+source ~/.config/bash/functions
+
+#source "${HOME}/.bash_funcs"
+
+[[ $- == *i* ]] && ~/.config/bash/message

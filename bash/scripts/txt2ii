@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+# ii2txt
+channel="#${1}"
+otherColor="\e[34m"
+highColor="\e[37m"
+normColor="\e[39m"
+
+while [[ 1 ]]; do
+  clear
+  echo -e "${otherColor}${channel}${normColor}:"
+  read line
+  #printf 'You said: %s' "${line}"
+  printf '%b\n' "$line" > "${HOME}/irc/irc.freenode.net/${channel}/in"
+done
+
+# tail -f <PIPE> | grep -v --line-buffered -e 'joined\|left'

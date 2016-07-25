@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+compgen -c | sort -u | grep -v -E '^[^a-zA-Z]' | custom_dmenu $* | bash

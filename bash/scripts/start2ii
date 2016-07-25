@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+#sudo ip link set wlp3s0 down && sudo systemctl restart dhcpcd@wlp3s0
+
+[[ $(pgrep ii) ]] && kill $(pgrep ii)
+
+#read -p 'Nick: ' nickStr
+nickStr='TheAnachron'
+read -s -p 'Password: ' passStr
+
+ii -n "${nickStr}" &
+
+echo "identify ${passStr}" > 'irc/irc.freenode.net/nickserv/in'
+
+# Wait until nickserver identifies our user
+tail -f 'irc/irc.freenode.net/nickserv/out' | while read LOGLINE; do
+  if [[ "${LOGLINE}" == *"You are now identified"* ]]; then
+    echo -e "\n"
+    pkill -P $$ tail
+    break
+  fi
+done
+
+echo 'User has been identified!'
+sleep 2.
+
+# Join a few channels
+echo 'Joining channels!'
+echo '/join #archlinux' > 'irc/irc.freenode.net/in'
+echo '/join #bspwm' > 'irc/irc.freenode.net/in'
+
+echo 'All done! Enjoy chatting!'
