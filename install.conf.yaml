@@ -1,0 +1,22 @@
+- defaults:
+    link:
+      relink: true
+#      force: true
+
+- clean: []
+
+- link: {
+  ~/.config/bash: 'bash',
+  ~/.config/bspwm: 'bspwm',
+  ~/.config/compton: 'compton',
+  ~/.config/dmenu: 'dmenu',
+  ~/.config/dunst: 'dunst',
+  ~/.config/mpd: 'mpd',
+  ~/.config/sxhkd: 'sxhkd',
+  ~/.config/mimeapps.list: 'system/mimeapps.list',
+  ~/.config/user-dirs.dirs: 'system/user-dirs.dirs',
+  ~/.config/fontconfig/conf.d/fonts.conf: 'system/fonts.conf',
+  ~/.vim: 'vim',
+}
+
+- shell: []
