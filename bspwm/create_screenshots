@@ -12,7 +12,7 @@ for fName in "${imageDir}"*; do
   if [[ -f "${fName}" ]]; then
     num=$((${num} +1))
     "${scriptDir}/change_theme" "${fName}"
-    termite -e "bash -i -c 'vim ~/.vimrc'" --name 'vim-edit'
+    #termite -e "bash -i -c 'vim ~/.vimrc'" --name 'vim-edit'
     sleep 0.7s
     picList+="$(~/.config/bash/scripts/scrot) "
   fi
