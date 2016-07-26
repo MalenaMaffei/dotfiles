@@ -1,2 +1,4 @@
 mpd/state
 luakit/share/*.db
+*bookmark*
+*log*
