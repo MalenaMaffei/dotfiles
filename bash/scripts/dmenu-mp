@@ -72,7 +72,8 @@ function handle_playback(){
     'volume') handle_volume;;
   esac
 
-  handle_playback
+  # For actions like this, don't go back to user
+  #handle_playback
 }
 
 function __query(){

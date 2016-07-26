@@ -1,0 +1,34 @@
+/* https://developer.mozilla.org/de/docs/Web/HTML/Block-level_elemente */
+
+/** {  
+  border-color: transparent !important;
+  text-shadow: initial !important;
+  box-shadow: none !important;
+  font-family: 'Droid Sans' !important;
+}
+
+body {
+  background-color: #F5F6E8 !important;
+  border-color: #DBDED2 !important;
+  color: #271920 !important;
+}
+
+a {
+  color: #503D43 !important;
+}
+
+span, p, h1, h2, h3, h4, h5, h6 {
+  color: #271920 !important;
+}
+
+a, div, h1, h2, h3, h4, h5, h6, button, input, textarea {
+  background-color: transparent !important;
+  background-image: none !important;
+  border-color: transparent !important;
+}
+
+button, input, textarea {
+  background-color: #C4C6B6 !important;
+  border-color: #A0A5A4 !important;
+  color: #271920 !important;
+}*/

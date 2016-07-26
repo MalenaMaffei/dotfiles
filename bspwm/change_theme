@@ -18,7 +18,8 @@ cp "${themeDir}/Xresources" ~/.Xresources
 cp "${themeDir}/termcolors" ~/.config/bash/colors
 #cp "${themeDir}/gtk.css" ~/.themes/Custom/gtk-3.0/gtk.css
 #cp "${themeDir}/settings.ini" ~/.themes/Custom/gtk-3.0/settings.ini
-#cp "${themeDir}/theme.lua" ~/.config/luakit/theme.lua
+cp "${themeDir}/theme.lua" ~/.config/luakit/theme.lua
+cp "${themeDir}/dunstrc" ~/.config/dunst/dunstrc
 
 # Extract colors
 eval "$(xres2var)"
@@ -35,12 +36,7 @@ bspc config presel_border_color "${base0C}"
 bspc config urgent_border_color "${base08}"
 
 # Update dunst
-sed -i 's/color.*/color = "'"${base02}"'"/' ~/.config/dunst/dunstrc
-sed -i 's/separator_color.*/separator_color = "'"${base03}"'"/' ~/.config/dunst/dunstrc
-sed -i 's/background.*/background = "'"${base00}"'"/' ~/.config/dunst/dunstrc
-#sed -i 's/foreground.*/foreground = "'"${LOW_COLOR}"'"/1' ~/.config/dunst/dunstrc
-sed -i 's/foreground.*/foreground = "'"${base0F}"'"/g' ~/.config/dunst/dunstrc
-#sed -i 's/foreground.*/foreground = "'"${CRT_COLOR}"'"/3' ~/.config/dunst/dunstrc
+
 [[ $(pgrep 'dunst') ]] && kill $(pgrep dunst)
 dunst &
 

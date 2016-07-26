@@ -8,14 +8,14 @@
 #define base05 #d8d8d8
 #define base06 #e8e8e8
 #define base07 #f8f8f8
-#define base08 #5D665E
-#define base09 #6A9327
-#define base0A #6E896A
-#define base0B #89756C
-#define base0C #7C8587
-#define base0D #93986D
-#define base0E #B8C94B
-#define base0F #A4A093
+#define base08 #2B3847
+#define base09 #424D36
+#define base0A #2F4B5D
+#define base0B #545E64
+#define base0C #226C91
+#define base0D #5C7689
+#define base0E #368BA5
+#define base0F #95886B
 
 *.foreground:   base0F
 *.background:   base00

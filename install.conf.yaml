@@ -11,6 +11,8 @@
   ~/.config/compton: 'compton',
   ~/.config/dmenu: 'dmenu',
   ~/.config/dunst: 'dunst',
+  ~/.config/luakit: 'luakit/config',
+  ~/.local/share/luakit: 'luakit/share',
   ~/.config/mpd: 'mpd',
   ~/.config/sxhkd: 'sxhkd',
   ~/.config/mimeapps.list: 'system/mimeapps.list',
@@ -20,7 +22,7 @@
   ~/.Xresources: 'system/Xresources',
   ~/.xinitrc: 'system/xinitrc',
   ~/.bashrc: 'bash/bashrc',
-  ~/.bash_profile: 'system/bash_profile',
+  ~/.bash_profile: 'bash/profile',
 }
 
 - shell: []
