@@ -1,2 +1,2 @@
 mpd/state
-*bookmarks*
+luakit/share/*.db
