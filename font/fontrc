@@ -6,7 +6,7 @@ Xft.hinting:                1
 Xft.antialias:              1
 Xft.rgba:                   rgb
 
-URxvt.font: xft:Monaco:size=10
-URxvt.boldFont: xft:Monaco:size=10
-URxvt.italicFont: xft:Monaco:size=10
-URxvt.boldItalicFont: xft:Monaco:size=10
+*.font: xft:Monaco:size=10
+*.boldFont: xft:Monaco:size=10
+*.italicFont: xft:Monaco:size=10
+*.boldItalicFont: xft:Monaco:size=10
