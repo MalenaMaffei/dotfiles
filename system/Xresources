@@ -8,14 +8,14 @@
 #define base05 #d8d8d8
 #define base06 #e8e8e8
 #define base07 #f8f8f8
-#define base08 #2B3847
-#define base09 #424D36
-#define base0A #2F4B5D
-#define base0B #545E64
-#define base0C #226C91
-#define base0D #5C7689
-#define base0E #368BA5
-#define base0F #95886B
+#define base08 #413C38
+#define base09 #5F502B
+#define base0A #675351
+#define base0B #92682E
+#define base0C #916F5E
+#define base0D #867B67
+#define base0E #AC8F66
+#define base0F #C0B335
 
 *.foreground:   base0F
 *.background:   base00
@@ -38,12 +38,5 @@
 *.color14:      base0F
 *.color15:      base07
 
-Xft.autohint: 0
-Xft.lcdfilter: lcddefault
-Xft.hinting: 1
-Xft.hintstyle: hintslight
-Xft.antialias: 1
-Xft.rgba: rgb
-
-#include ".config/rofi/rofirc"
+#include ".config/font/fontrc"
 #include ".config/dmenu/dmenurc"

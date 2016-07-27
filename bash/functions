@@ -1,8 +1,8 @@
 #!/bin/bash
 
 function custom_dmenu(){
-  local height="${PANEL_HEIGHT:-25px}"
-  local width="${PANEL_WIDTH:-100%}"
+  local height="${DMENU_HEIGHT:-25px}"
+  local width="${DMENU_WIDTH:-100%}"
 
   while getopts ':h:w:' o; do
     case "$o" in
@@ -32,3 +32,9 @@ function custom_dmenu(){
 }
 
 export -f custom_dmenu
+
+function lsf(){
+  fc-list | awk -F ':' '{print $2}' | sort -u
+}
+
+export -f lsf

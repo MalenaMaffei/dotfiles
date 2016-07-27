@@ -59,3 +59,9 @@ alias xmt='xdg-mime query filetype'
 
 # Setup default height and width for DMENU
 alias dmenu="custom_dmenu"
+
+# Alias for list themes
+alias lst="ls /usr/share/themes && ls ~/.themes"
+
+# Alias for list icons
+alias lsi="ls /usr/share/icons && ls ~/.icons"
