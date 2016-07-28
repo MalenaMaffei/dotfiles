@@ -3,7 +3,7 @@
 uuidList="${HOME}/.pastebin.list"
 
 function parse_line(){
-  if [[ "$(echo -n ${1} | grep -x -o -E '[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}' != "" ]]; then
+  if [[ $(echo -n ${1} | grep -x -o -E '[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}') != "" ]]; then
     answer=$(curl -s -X DELETE "https://ptpb.pw/${1}" -o /dev/stdout)
     deleteText=$(echo -e "${answer}" | grep -o -i 'deleted')
     if [[ "${deleteText}" == 'deleted' ]]; then

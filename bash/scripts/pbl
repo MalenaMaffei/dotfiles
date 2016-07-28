@@ -4,5 +4,9 @@ uuidList="${HOME}/.pastebin.list"
 
 [[ -s "${uuidList}" ]] || echo "[INFO] There are no pastes!"
 
+uuidData=$(cat "${uuidList}")
+
+[[ "${1}" != "" ]] && uuidData=$(echo "${uuidData}" | grep "${1}")
+
 #awk -F ';' '{print "uuid: "$1"file: "$2"date: "$3;}' "${uuidList}"
-awk -F ';' '{print "uuid: "$1"\nfile: "$2"\ndate: "$3"\n\n";}' "${uuidList}"
+echo -en "${uuidData}" | awk -F ';' '{print "uuid: "$1"\nfile: "$2"\ndate: "$3"\n$url: "$4"\n\n";}'

@@ -35,6 +35,16 @@ function parse_line(){
   fi
 }
 
+function save_paste(){
+  local fName="${1}"
+  local answer="${2}"
+
+  fileUUID=$(echo -e "${answer}" | grep -i 'uuid' | awk -F ': ' '{print $2}')
+  fileURL=$(echo -e "${answer}" | grep -i 'url' | awk -F ': ' '{print $2}')
+
+  [[ "${fileUUID}" != "" ]] && echo "${fileUUID};${fName};$(date);${fileURL}" >> "${uuidList}"
+}
+
 # Check if arguments are passed
 if [[ $# -ge 1 ]]; then
   [[ "${verbose}" -eq 1 ]] && echo "[INFO] Recieved arguments"
@@ -58,9 +68,7 @@ elif [[ "${fileList}" != "" ]]; then
     for fName in ${fileList[@]}; do
       [[ "${verbose}" -eq 1 ]] && echo "[INFO] Uploading file \"${fName}\""
       answer=$(curl -s -F c=@${fName} -w "%{redirect_url}" https://ptpb.pw?r=1 -o /dev/stdout)
-      fileUUID=$(echo -e "${answer}" | grep -i 'uuid' | awk -F ': ' '{print $2}')
-      echo "UUID: ${fileUUID}"
-      [[ "${fileUUID}" != "" ]] && echo "${fileUUID};${fName};$(date)" >> "${uuidList}"
+      
       echo -e "${answer}"
     done
   # Multiple files, we have to archive
@@ -75,15 +83,13 @@ elif [[ "${fileList}" != "" ]]; then
     [[ "${verbose}" -eq 1 ]] && echo "[INFO] Uploading archive \"${archiveName}\""
     #-H "Content-Type: multipart/form-data"
     answer=$(curl -s -F "c=@${archiveName}" -w "%{redirect_url}" https://ptpb.pw?r=1 -o /dev/stdout)
-    fileUUID=$(echo -e "${answer}" | grep -i 'uuid' | awk -F ': ' '{print $2}')
-    [[ "${fileUUID}" != "" ]] && echo "${fileUUID};${archiveName};$(date)" >> "${uuidList}"
+    save_paste "${fName}" "${answer}"
     echo -e "${answer}"
     rm "${archiveList}"
   fi
 elif [[ "${contents}" != "" ]]; then
   answer=$(echo -en "${contents}" | curl -s -F c=@- -w "%{redirect_url}" https://ptpb.pw?r=1 -o /dev/stdout)
-  fileUUID=$(echo -e "${answer}" | grep -i 'uuid' | awk -F ': ' '{print $2}')
-  [[ "${fileUUID}" != "" ]] && echo "${fileUUID};text;$(date)" >> "${uuidList}"
+  save_paste "${fName}" "${answer}"
   echo -e "${answer}"
 # Nothing is specified, exit
 else
