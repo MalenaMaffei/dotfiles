@@ -1,0 +1,8 @@
+library: ~/.config/beets/library.db
+directory: ~/music
+
+import:
+    write: yes
+    copy: no
+    move: yes
+    resume: yes
