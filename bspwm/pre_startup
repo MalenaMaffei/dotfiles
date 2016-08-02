@@ -4,3 +4,4 @@
 [[ ! $(pgrep 'dunst') ]] && dunst &
 [[ ! $(pgrep 'compton') ]] && compton -b --config ~/.config/compton/compton.conf
 [[ ! $(pgrep 'mpd') ]] && mpd &
+[[ ! $(pgrep 'gpg-agent') ]] && gpg-connect-agent reloadagent /bye

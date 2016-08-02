@@ -16,7 +16,7 @@ FONT_SIZE=10
 
 export MONO_FONT NORMAL_FONT SYMBOL_FONT FONT_SIZE
 
-GTK_THEME="Vertex-Dark"
+GTK_THEME="Arc-Dark-Grey"
 ICON_THEME="elementary"
 CURSOR_THEME="elementary"
 

@@ -1,0 +1,192 @@
+#!/usr/bin/env bash
+
+set -e
+shopt -s globstar
+
+scriptDir=$(dirname `realpath -P "$0"`)
+scriptName=$(basename `realpath -P "$0"`)
+
+function decFile(){
+  gpg -q -d "${1}" 2>/dev/null > "${2}"
+}
+
+function encFile(){
+  gpg -q -o "${2}" -r "${GPG_ID}" -e "${1}" 2>/dev/null
+}
+
+function ts2Str(){
+  date -d @"${1}" +%Y%m%d%H%M.%S
+}
+
+function chMT(){
+  touch -mt $(ts2Str "${2}") "${1}"
+}
+
+function dot-conf(){
+  local paramName="${1}"
+  local paramValue="${2:-true}"
+
+  case "${paramName}" in
+    backup|b) dots_conf_backup="${paramValue}";;
+    verbose|v) dots_conf_verbose="${paramValue}";;
+  esac
+}
+
+function dot-link(){
+  local conf=""
+  local OPTIND
+
+  while getopts ":e:g" opt; do
+    case $opt in
+      e|g) conf+="${opt}+";;
+    esac
+  done
+
+  shift "$((OPTIND - 1))"
+
+  dots_links+=("${1};${2};${conf}")
+}
+
+function handleGPGFile(){
+  local linkTarget="${1}"
+  local linkSource="${2}"
+  local decMod=$(stat -c %Y "${linkSource}")
+  local encFile=".gpg/${linkSource}.gpg"
+
+  # Check if encrypted file exists
+  if [[ ! -e "${encFile}" ]]; then
+    # Create encrypted file
+    echo "[INFO] Encrypting file \"${linkSource}\"."
+    encFile "${linkSource}" "${encFile}"
+  else
+    local encMod=$(stat -c %Y "${encName}")
+    if [[ "${decMod}" -gt "${encFile}" ]]; then
+      echo "[INFO] Decrypted file \"${linkSource}\" has changed."
+      encFile "${linkSource}" "${encName}"
+      chMT "${encName}" "${decMod}"
+    elif [[ "${encFile}" -gt "${decMod}" ]]; then
+      echo "[INFO] Encrypted file \"${encName}\" has changed."
+      decFile "${encName}" "${linkSource}"
+      chMT "${decName}" "${encMod}"
+    fi
+  fi
+}
+
+function handleGPGDir(){
+  local linkTarget="${1}"
+  local linkSource="${2}"
+
+  for fName in "${linkSource}"/**/*; do
+    [[ ! -f "${fName}" ]] && continue
+    [[ "${dots_conf_verbose}" == 'on' ]] && echo "[INFO] Browsing \"${linkTarget}\"."
+    handleGPGFile "${linkTarget}/${fName}" "${linkSource}/${fName}"
+  done
+}
+
+function _exec_sync(){
+  if [[ "${DOTS_INITIALIZED}" == '' ]]; then
+    readonly DOTS_INITIALIZED=1
+    dots_links=()
+    dots_conf_backup='on'
+    dots_conf_verbose='on'
+    source 'dots.conf.bash'
+  fi
+
+  for linkPair in "${dots_links[@]}"; do
+    local linkTarget=$(echo "${linkPair}" | cut -d ';' -f '1')
+    local linkSource=$(echo "${linkPair}" | cut -d ';' -f '2')
+    local linkConfig=$(echo "${linkPair}" | cut -d ';' -f '3')
+
+    if [[ ! -e "${linkSource}" ]]; then
+      echo "[ERROR] Source \"${linkSource}\" does not exist!"
+      continue
+    fi
+
+    # Check if file is symbol link
+    if [[ -L "${linkTarget}" ]]; then
+      [[ "${dots_conf_verbose}" == 'on' ]] && echo "[INFO] Target \"${linkTarget}\" already exists and is a valid link."
+    elif [[ -e "${linkTarget}" ]] || [[ -d "${linkTarget}" ]]; then
+      [[ "${dots_conf_verbose}" == 'on' ]] && echo "[INFO] Target \"${linkTarget}\" already exists but is a normal file/directory."
+
+      if [[ "${dots_conf_backup}" == 'on' ]]; then
+        local bakFile=".bak/${linkTarget}"
+
+        [[ "${dots_conf_verbose}" == 'on' ]] && echo "[INFO] Creating backup \"${linkTarget}\" as \"${bakFile}\"."
+        cp -p "${linkTarget}" "${bakFile}"
+      fi
+
+      [[ "${dots_conf_verbose}" == 'on' ]] && echo "[INFO] Deleting existing \"${linkTarget}\"."
+      rm -rf "${linkTarget}"
+    fi
+
+    if [[ ! -L "${linkTarget}" ]]; then
+      local parentDir=$(dirname "${linkTarget}")
+      if [[ ! -d "${parentDir}" ]]; then
+        [[ "${dots_conf_verbose}" == 'on' ]] && echo "[INFO] Creating parent directory for \"${linkTarget}\"."
+        mkdir -p "${parentDir}"
+      fi
+      echo "[INFO] Linking \"${linkTarget}\" to \"${linkSource}\"."
+      ln -s "${PWD}/${linkSource}" "${linkTarget}"
+    fi
+
+    # Check if it should have an encrypted part
+    if [[ "${linkConfig}" == *e* ]]; then
+
+      # Exit early if we have no GPG identity to decrypt/encrypt with
+      if [[ "${GPG_ID}" == '' ]]; then
+        echo "[ERROR] Cannot handle \"${linkTarget}\": No GPG_ID!"
+        continue
+      fi
+
+      [[ -d "${linkTarget}" ]] && handleGPGDir "${linkTarget}" "${linkSource}"
+      [[ -e "${linkTarget}" ]] && handleGPGFile "${linkTarget}" "${linkSource}"
+    fi
+
+    # Check if it should be set up on git
+    if [[ "${linkConfig}" == *g* ]]; then
+      # If file has encrypted counterpart, ignore the original file
+      if [[ "${linkConfig}" == *e* ]]; then
+        if [[ ! $(git check-ignore "${linkSource}") ]]; then
+          echo "[INFO] Ignoring \"${decName}\" in git."
+          echo -en "\n${decName}" >> '.gitignore'
+          #git add '.gitignore'
+        fi
+
+        if [[ ! $(git ls-files "${encName}" --error-unmatch) ]]; then
+          [[ "${dots_conf_verbose}" == 'on' ]] && echo "[INFO] Adding \"${linkTarget}\" to git."
+          git add "${encName}"
+        fi
+      # File has no counterpart, make sure to keep track of it!
+      else
+        echo "[INFO] Adding \"${linkSource}\" to git."
+        git add "${linkSource}"
+      fi
+    fi
+  done
+}
+
+function showHelp(){
+  cat <<EOF
+  usage: ${scriptName} <command> [args]
+EOF
+}
+
+function main(){
+  [[ "${1}" == 'dots' ]] && shift
+  local OPTIND
+  local toolName="${1}"
+  shift
+
+  while getopts ":h" opt; do
+    case $opt in
+      h|help) showHelp;;
+    esac
+  done
+
+  case $toolName in
+    sync) _exec_sync ${@};;
+    *) showHelp;;
+  esac
+}
+
+main ${@}

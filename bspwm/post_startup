@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-#~/.config/bash/scripts/theme-from-wallpaper 'y' &
-[[ ! $(pgrep -f 'bspwm/wallpaper') ]] && ~/.config/bspwm/change_theme 'y' &
+~/.config/bspwm/change_theme 'y' &
 #[[ ! $(pgrep -f 'panel') ]] && ~/.config/bspwm/panel &
 
 sleep 5

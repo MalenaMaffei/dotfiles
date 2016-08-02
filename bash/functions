@@ -27,7 +27,7 @@ function custom_dmenu(){
     local width=$(echo "${width}" | tr -d 'px')
   fi
 
-  local cmdStr="dmenu -h ${height} -w ${width}"
+  local cmdStr="dmenu -h ${height} -w ${width} $*"
   ${cmdStr}
 }
 

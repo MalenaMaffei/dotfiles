@@ -23,6 +23,9 @@ super + comma
 super + space
   ~/.config/bash/scripts/dmenu-ex
 
+super + ctrl + space
+  ~/.config/bash/scripts/dmenu-pw
+
 # make sxhkd reload its configuration files:
 super + Escape
   pkill -USR1 -x sxhkd
