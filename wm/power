@@ -4,7 +4,8 @@
 function lour(){
   notify-send -u critical 'User is logging off.'
   sleep "${1:-1}"
-  killall bash
+  local winMan=$(grep 'exec' "${HOME}/.xinitrc" | tail -n 1 | awk -F ' ' '{print $2}')
+  killall "${winMan}" bash
 }
 
 # l(oc)k u(se)r
