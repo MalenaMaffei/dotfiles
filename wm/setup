@@ -160,7 +160,7 @@ function resw(){
   done
 }
 
-# mod(ify) w(indow) (m)i(nimize)/(m)a(ximize)/d(efault) <WID> [.. <WID>]
+# mod(ify) w(indow) h(ide)/(m)a(ximize)/d(efault) <WID> [.. <WID>]
 function modw(){
   local winAct=${1}
   shift
@@ -168,12 +168,12 @@ function modw(){
 
   for winID in "${winIDs[@]}"; do
     case "${winAct}" in
-      'i')
+      'h')
         bkpw "${winID}"
         mapw -u "${winID}"
       ;;
       'd')
-        resw "${winID}"
+        rstw "${winID}"
       ;;
       'm')
         if [[ -f "${wmWinFS}" ]]; then
@@ -230,14 +230,70 @@ function rstg(){
   return
 }
 
-# gro(up) w(indow) <GID|all> add(+)/del(-)/set(=) <WID> [.. <WID>]
+# gro(up) w(indow) <GID> add(+)/del(-)/set(=) <WID> [.. <WID>]
 function grow(){
-  return
+  local grpID=${1}
+  local grpAct=${2}
+  shift; shift
+  local winIDs="${@}"
+
+  if [[ "${grpAct}" == '=' ]]; then
+    sed -i "/^${grpID}/d" "${wmGrpLst}"
+  fi
+
+  if [[ ! $(grep "\^${grpID}" "${wmGrpLst}") ]]; then
+    echo "${grpID};s;" >> "${wmGrpLst}"
+  fi
+
+  # Lines look like '0;s;0x00000010;0x00000019'
+  local grpLine=$(grep -n "\^${grpID};" "${wmGrpLst}" | cut -d ';' -f 1)
+
+  for winID in "${winIDs[@]}"; do
+    case "${grpAct}" in
+      '+'|'=') sed -i "${grpLine}s/$/${winID}\;/" "${wmGrpLst}";;
+      '-') sed -i "${grpLine}s/${winID}\;/d" "${wmGrpLst}";;
+    esac
+  done
 }
 
-# mod(ify) g(roup) <GID|all> s(how)/h(ide)/t(oggle)/c(lear)
+# mod(ify) g(roup) <GID> s(how)/h(ide)/t(oggle)/c(lear)
 function modg(){
-  return
+  local grpID=${1}
+  local grpAct=${2}
+  # Lines look like '0;s;0x00000010;0x00000019'
+  local winIDs=$(grep "\^${grpID}" "${wmGrpLst}" | cut -d ';' -f 3+)
+
+  if [[ "${winIDs}" == '' && "${grpAct}" != 'c' ]]; then
+    echo "${grpID};s;" >> "${wmGrpLst}"
+  fi
+
+  case "${grpAct}" in
+    's')
+      sed -i "s/\^${grpID};h/${grpID};s/" "${wmGrpLst}"
+      local newMod='s'
+    ;;
+    'h')
+      sed -i "s/\^${grpID};s/${grpID};h/" "${wmGrpLst}"
+      local newMod='h'
+    ;;
+    't')
+      if [[ $(grep "\^${grpID};.*" "${wmGrpLst}" | cut -d ';' -f 2) == 's' ]]; then
+        sed -i "s/\^${grpID};s/${grpID};h/" "${wmGrpLst}"
+        local newMod='h'
+      else
+        sed -i "s/\^${grpID};h/${grpID};s/" "${wmGrpLst}"
+        local newMod='s'
+      fi
+    ;;
+    'c') sed -i "/^${grpID}/d" "${wmGrpLst}";;
+  esac
+
+  for winID in "${winIDs[@]}"; do
+    case "${newMod}" in
+      's') rstw "${winID}";;
+      'h') modw h "${winID}";;
+    esac
+  done
 }
 
 # ch(ange) w(indow) l(ayout) t(ile)/f(loating)/m(onocycle)
