@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-
-function main(){
-  #local dotDirs=("${HOME}/.config/bash" "${HOME}/.config/bspwm" "${HOME}/.config/compton" "${HOME}/.config/dmenu" "${HOME}/.config/dunst" "${HOME}/.config/fontconfig" "${HOME}/.config/sxhkd")
-  
-}
-
-main $*
