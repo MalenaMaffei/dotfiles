@@ -30,7 +30,7 @@ function bkpw(){
     local winB=$(wattr b "${winID}")
     local bakFile="${wmBackups}/win.${winID}"
 
-    #[[ -f "${bakFile}" ]] && continue
+    [[ -f "${bakFile}" ]] && continue
 
     echo "${winX};${winY};${winW};${winH};${winB}" > "${bakFile}"
   done
@@ -188,7 +188,7 @@ function resw(){
   done
 }
 
-# mod(ify) w(indow) h(ide)/(m)a(ximize)/d(efault) <WID> [.. <WID>]
+# mod(ify) w(indow) h(ide)/(m)a(ximize)/d(efault)/f(ullscreen) <WID> [.. <WID>]
 function modw(){
   local winAct=${1}
   shift
@@ -205,12 +205,28 @@ function modw(){
         mapw -m "${winID}"
       ;;
       'm')
+        local rootWin=$(lsw -r)
+        local rootW=$(wattr w "${rootWin}")
+        local rootH=$(wattr h "${rootWin}")
+
+        local rootW=$((rootW - PAD_LEFT - PAD_RIGHT))
+        local rootH=$((rootH - PAD_TOP - PAD_BOT))
+
+        bkpw "${winID}"
+        mapw -m "${winID}"
+        wtp "${PAD_LEFT}" "${PAD_TOP}" "${rootW}" "${rootH}" "${winID}"
+
+        echo "${winID}" > "${wmWinFS}"
+      ;;
+      'f')
         if [[ -f "${wmWinFS}" ]]; then
           rstw $(cat "${wmWinFS}")
         fi
+        
         bkpw "${winID}"
         mapw -m "${winID}"
         wtp $(wattr xywh `lsw -r`) "${winID}"
+
         echo "${winID}" > "${wmWinFS}"
       ;;
     esac

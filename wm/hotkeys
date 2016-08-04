@@ -29,10 +29,10 @@ super + ctrl + {Left,Right,Up,Down}
 super + shift + {Left,Right,Up,Down}
   resw {l,r,u,d} - 10px $(pfw)
 
-# mod(ify) w(indow) h(ide)/(m)a(ximize)/d(efault) <WID> [.. <WID>]
+# mod(ify) w(indow) h(ide)/(m)a(ximize)/d(efault)/f(ullscreen) <WID> [.. <WID>]
 # Example: modw a $(pfw)
-super + shift + {s,w,x}
-  modw {h,a,d} $(pfw)
+super + shift + {q,w,d,f}
+  modw {h,a,d,f} $(pfw)
 
 # mo(dify) w(indow) s(tacking order) inc(+)/dec(-)/to(=)/f(ront)/b(ack) ? <WID> [.. <WID>]
 # Example: mows + 1 $(pfw)
