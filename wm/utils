@@ -8,6 +8,8 @@ wmGrpLst="${wmTMP}/.grpls"
 wmGrpBkp="${wmTMP}/.gbkps"
 wmWinFS="${wmTMP}/.winfs"
 
+[[ ! -d "${wmTMP}" ]] && mkdir -p "${wmTMP}"
+
 PAD_TOP="${PAD_TOP:-0}"
 PAD_BOT="${PAD_BOT:-0}"
 PAD_LEFT="${PAD_LEFT:-0}"
@@ -40,8 +42,8 @@ function rstw(){
     local winW=$(echo "${winProp}" | cut -d ';' -f 4)
     local winH=$(echo "${winProp}" | cut -d ';' -f 5)
 
-    wpt "${winX}" "${winY}" "${winW}" "${winH}" "${winID}" # Teleport window
-    mapw -m # Show window
+    wtp "${winX}" "${winY}" "${winW}" "${winH}" "${winID}" # Teleport window
+    mapw -m "${winID}" # Show window
 
     sed -i "/${winID}/d" "${wmWinBkp}"
   done
@@ -49,13 +51,14 @@ function rstw(){
 
 # foc(us) w(indow) l(eft)/r(ight)/u(p)/d(own)/p(rev)/n(ext)
 function focw(){
+  local winID=$(pfw)
   case $1 in
-    l) wtf $(lsw | xargs wattr xi | sort -nr | sed "0,/$CUR/d" | sed "1s/^[0-9]* //p;d");;
-    r) wtf $(lsw | xargs wattr yi | sort -n | sed "0,/$CUR/d" | sed "1s/^[0-9]* //p;d");;
-    u) wtf $(lsw | xargs wattr yi | sort -nr | sed "0,/$CUR/d" | sed "1s/^[0-9]* //p;d");;
-    d) wtf $(lsw | xargs wattr xi | sort -n | sed "0,/$CUR/d" | sed "1s/^[0-9]* //p;d");;
-    n) wtf $(lsw | grep -v $CUR | sed '1 p;d') ;;
-    p) wtf $(lsw | grep -v $CUR | sed '$ p;d') ;;
+    l) wtf $(lsw | xargs wattr xi | sort -nr | sed "0,/$winID/d" | sed "1s/^[0-9]* //p;d");;
+    r) wtf $(lsw | xargs wattr yi | sort -n | sed "0,/$winID/d" | sed "1s/^[0-9]* //p;d");;
+    u) wtf $(lsw | xargs wattr yi | sort -nr | sed "0,/$winID/d" | sed "1s/^[0-9]* //p;d");;
+    d) wtf $(lsw | xargs wattr xi | sort -n | sed "0,/$winID/d" | sed "1s/^[0-9]* //p;d");;
+    n) wtf $(lsw | grep -v $winID | sed '1 p;d') ;;
+    p) wtf $(lsw | grep -v $winID | sed '$ p;d') ;;
   esac
 }
 
@@ -121,7 +124,7 @@ function telw(){
     local winW=$(wattr w "${winID}")
     local winH=$(wattr h "${winID}")
 
-    wpt "${winX}" "${winY}" "${winW}" "${winH}" "${winID}"
+    wtp "${winX}" "${winY}" "${winW}" "${winH}" "${winID}"
   done
 }
 
