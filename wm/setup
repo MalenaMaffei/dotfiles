@@ -1,10 +1,17 @@
 #!/usr/bin/env bash
 
+set -e
+
 wmTMP='/tmp/.wm'
 wmWinBkp="${wmTMP}/.wbkps"
 wmGrpLst="${wmTMP}/.grpls"
 wmGrpBkp="${wmTMP}/.gbkps"
 wmWinFS="${wmTMP}/.winfs"
+
+PAD_TOP="${PAD_TOP:-0}"
+PAD_BOT="${PAD_BOT:-0}"
+PAD_LEFT="${PAD_LEFT:-0}"
+PAD_RIGHT="${PAD_RIGHT:-0}"
 
 # b(ac)k(u)p w(indow) <WID> [.. <WID>]
 function bkpw(){
@@ -14,7 +21,7 @@ function bkpw(){
     local winW=$(wattr w "${winID}")
     local winH=$(wattr h "${winID}")
 
-    [[ grep "${winID}" "${wmWinBkp}" ]] && continue
+    [[ $(grep "${winID}" "${wmWinBkp}") ]] && continue
 
     echo "${winID};${winX};${winY};${winW};${winH}" | tee -a "${wmWinBkp}"
   done
@@ -59,12 +66,13 @@ function movw(){
   shift; shift; shift # clear above args
   local winIDs="${@}" # other args should be windows
 
+  local rootWin=$(lsw -r)
+  local rootW=$(wattr w "${rootWin}")
+  local rootH=$(wattr h "${rootWin}")
+
   # if value is in percentage, calculate it now
   if [[ "${moveVal}" == *% ]]; then
     moveVal=$(echo "${moveVal}" | tr -d '%')
-    local rootWin=$(lsw -r)
-    local rootW=$(wattr w "${rootWin}")
-    local rootH=$(wattr h "${rootWin}")
     if [[ "${moveDir}" == 'l' || "${moveDir}" == 'r' ]]; then
       moveVal=$(echo "scale=0; ${rootW}/100*${moveVal}" | bc -s)
     else
@@ -78,25 +86,26 @@ function movw(){
   for winID in "${winIDs[@]}"; do
     local winX=$(wattr x "${winID}")
     local winY=$(wattr y "${winID}")
+    local winW=$(wattr w "${winID}")
+    local winH=$(wattr h "${winID}")
 
-    if [[ "${moveDir}" == 'l' && "${moveMod}" == '+' ]] || [[ "${moveDir}" == 'r' && "${moveMod}" == '-' ]]; then
-      winX=$((winX + moveVal))
-    elif [[ "${moveDir}" == 'l' && "${moveMod}" == '-' ]] || [[ "${moveDir}" == 'r' && "${moveMod}" == '+' ]]; then
-      winX=$((winX - moveVal))
+    if [[ "${moveDir}" == 'l' && "${moveMod}" == '-' ]] || [[ "${moveDir}" == 'r' && "${moveMod}" == '+' ]]; then
+      wmv "${moveVal}" 0 "${winID}"
+    elif [[ "${moveDir}" == 'l' && "${moveMod}" == '+' ]] || [[ "${moveDir}" == 'r' && "${moveMod}" == '-' ]]; then
+      wmv "$((0 - moveVal))" 0 "${winID}"
     elif [[ "${moveDir}" == 'l' && "${moveMod}" == '=' ]]; then
-      winX=$((moveVal))
+      wtp "${moveVal}" "${winY}" "${winW}" "${winH}" "${winID}"
     elif [[ "${moveDir}" == 'r' && "${moveMod}" == '=' ]]; then
-      winX=$((rootW - moveVal))
-    elif [[ "${moveDir}" == 'u' && "${moveMod}" == '+' ]] || [[ "${moveDir}" == 'd' && "${moveMod}" == '-' ]]; then
-      winX=$((winY + moveVal))
+      wtp "$((rootW - winW - moveVal))" "${winY}" "${winW}" "${winH}" "${winID}"
     elif [[ "${moveDir}" == 'u' && "${moveMod}" == '-' ]] || [[ "${moveDir}" == 'd' && "${moveMod}" == '+' ]]; then
-      winX=$((winY - moveVal))
+      wmv 0 "${moveVal}" "${winID}"
+    elif [[ "${moveDir}" == 'u' && "${moveMod}" == '+' ]] || [[ "${moveDir}" == 'd' && "${moveMod}" == '-' ]]; then
+      wmv 0 "$((0 - moveVal))" "${winID}"
     elif [[ "${moveDir}" == 'u' && "${moveMod}" == '=' ]]; then
-      winY=$((moveVal))
+      wtp "${winX}" "${moveVal}" "${winW}" "${winH}" "${winID}"
     elif [[ "${moveDir}" == 'd' && "${moveMod}" == '=' ]]; then
-      winY=$((rootH - moveVal))
+      wtp "${winX}" "$((rootH - winH - moveVal))" "${winW}" "${winH}" "${winID}"
     fi
-    wmv "${winX}" "${winY}" "${winID}"
   done
 }
 
@@ -205,17 +214,20 @@ function snaw(){
   local rootW=$(wattr w "${rootWin}")
   local rootH=$(wattr h "${rootWin}")
 
+  local rootW=$((rootW - PAD_LEFT - PAD_RIGHT))
+  local rootH=$((rootH - PAD_TOP - PAD_BOT))
+
   for winID in "${winIDs[@]}"; do
     case "${winPos}" in
-      't') wtp 0 0 "${rootW}" "$((rootH/2))" "${winID}";;
-      'b') wtp 0 "$((rootH/2))" "${rootW}" "$((rootH/2))" "${winID}";;
-      'l') wtp 0 0 "$((rootW/2))" "${rootH}" "${winID}";;
-      'r') wtp "$((rootW/2))" 0 "$((rootW/2))" "${rootH}" "${winID}";;
-      'tl') wtp 0 0 "$((rootW/2))" "$((rootH/2))" "${winID}";;
-      'tr') wtp "$((rootW/2))" 0 "$((rootW/2))" "$((rootH/2))" "${winID}";;
-      'bl') wtp 0 "$((rootW/2))" "$((rootW/2))" "$((rootH/2))" "${winID}";;
-      'br') wtp "$((rootH/2))" "$((rootW/2))" "$((rootW/2))" "$((rootH/2))" "${winID}";;
-      'c') wtp "$((rootW/4))" "$((rootH/4))" "$((rootW/2))" "$((rootH/2))" "${winID}";;
+      't') wtp "${PAD_LEFT}" "${PAD_TOP}" "${rootW}" "$((rootH/2))" "${winID}";;
+      'b') wtp "${PAD_LEFT}" "$((PAD_TOP+rootH/2))" "${rootW}" "$((rootH/2))" "${winID}";;
+      'l') wtp "${PAD_LEFT}" "${PAD_TOP}" "$((rootW/2))" "${rootH}" "${winID}";;
+      'r') wtp "$((PAD_LEFT+rootW/2))" "${PAD_TOP}" "$((rootW/2))" "${rootH}" "${winID}";;
+      'tl') wtp "${PAD_LEFT}" "${PAD_TOP}" "$((rootW/2))" "$((rootH/2))" "${winID}";;
+      'tr') wtp "$((PAD_LEFT+rootW/2))" "${PAD_TOP}" "$((rootW/2))" "$((rootH/2))" "${winID}";;
+      'bl') wtp "${PAD_LEFT}" "$((PAD_TOP+rootH/2))" "$((rootW/2))" "$((rootH/2))" "${winID}";;
+      'br') wtp "$((PAD_LEFT+rootW/2))" "$((PAD_TOP+rootH/2))" "$((rootW/2))" "$((rootH/2))" "${winID}";;
+      'c') wtp "$((PAD_LEFT+rootW/4))" "$((PAD_TOP+rootH/4))" "$((rootW/2))" "$((rootH/2))" "${winID}";;
     esac
   done
 }
