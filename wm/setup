@@ -3,6 +3,8 @@
 wmTMP='/tmp/.wm'
 wmWinBkp="${wmTMP}/.wbkps"
 wmGrpLst="${wmTMP}/.grpls"
+wmGrpBkp="${wmTMP}/.gbkps"
+wmWinFS="${wmTMP}/.winfs"
 
 # b(ac)k(u)p w(indow) <WID> [.. <WID>]
 function bkpw(){
@@ -11,6 +13,9 @@ function bkpw(){
     local winY=$(wattr y "${winID}")
     local winW=$(wattr w "${winID}")
     local winH=$(wattr h "${winID}")
+
+    [[ grep "${winID}" "${wmWinBkp}" ]] && continue
+
     echo "${winID};${winX};${winY};${winW};${winH}" | tee -a "${wmWinBkp}"
   done
 }
@@ -27,13 +32,23 @@ function rstw(){
     local winW=$(echo "${winProp}" | cut -d ';' -f 4)
     local winH=$(echo "${winProp}" | cut -d ';' -f 5)
 
-    wpt "${winX}" "${winY}" "${winW}" "${winH}" "${winID}"
+    wpt "${winX}" "${winY}" "${winW}" "${winH}" "${winID}" # Teleport window
+    mapw -m # Show window
+
+    sed -i "/${winID}/d" "${wmWinBkp}"
   done
 }
 
 # foc(us) w(indow) l(eft)/r(ight)/u(p)/d(own)/p(rev)/n(ext)
 function focw(){
-  return
+  case $1 in
+    l) wtf $(lsw | xargs wattr xi | sort -nr | sed "0,/$CUR/d" | sed "1s/^[0-9]* //p;d");;
+    r) wtf $(lsw | xargs wattr yi | sort -n | sed "0,/$CUR/d" | sed "1s/^[0-9]* //p;d");;
+    u) wtf $(lsw | xargs wattr yi | sort -nr | sed "0,/$CUR/d" | sed "1s/^[0-9]* //p;d");;
+    d) wtf $(lsw | xargs wattr xi | sort -n | sed "0,/$CUR/d" | sed "1s/^[0-9]* //p;d");;
+    n) wtf $(lsw | grep -v $CUR | sed '1 p;d') ;;
+    p) wtf $(lsw | grep -v $CUR | sed '$ p;d') ;;
+  esac
 }
 
 # mov(e) w(indow) l(eft)/r(ight)/u(p)/d(own) inc(+)/dec(-)/to(=) ?px/?% <WID> [.. <WID>]
@@ -141,12 +156,37 @@ function resw(){
     elif [[ "${resDir}" == 'h' && "${resMod}" == '=' ]]; then
       winH=$((resVal))
     fi
-    wrs -a "${winX}" "${winY}" "${winID}"
+    wrs -a "${winW}" "${winH}" "${winID}"
   done
 }
 
-# mod(ify) w(indow) (m)i(nimize)/(m)a(ximize)/r(estore) <WID> [.. <WID>]
+# mod(ify) w(indow) (m)i(nimize)/(m)a(ximize)/d(efault) <WID> [.. <WID>]
 function modw(){
+  local winAct=${1}
+  shift
+  local winIDs="${@}"
+
+  for winID in "${winIDs[@]}"; do
+    case "${winAct}" in
+      'i')
+        bkpw "${winID}"
+        mapw -u "${winID}"
+      ;;
+      'd')
+        resw "${winID}"
+      ;;
+      'm')
+        if [[ -f "${wmWinFS}" ]]; then
+          resw $(cat "${wmWinFS}")
+          rm "${wmWinFS}"
+        fi
+        bkpw "${winID}"
+        mapw -m "${winID}"
+        wtp $(wattr xywh `lsw -r`) "${winID}"
+      ;;
+    esac
+  done
+
   return
 }
 
@@ -157,7 +197,27 @@ function mows(){
 
 # sna(p) w(indow) t(op)/b(ottom)/l(eft)/r(ight)/t(op)l(eft)/t(op)r(ight)/b(ottom)l(eft)/b(ottom)r(ight)/c(enter) <WID> [.. <WID>]
 function snaw(){
-  return
+  local winPos=${1}
+  shift
+  local winIDs="${@}"
+
+  local rootWin=$(lsw -r)
+  local rootW=$(wattr w "${rootWin}")
+  local rootH=$(wattr h "${rootWin}")
+
+  for winID in "${winIDs[@]}"; do
+    case "${winPos}" in
+      't') wtp 0 0 "${rootW}" "$((rootH/2))" "${winID}";;
+      'b') wtp 0 "$((rootH/2))" "${rootW}" "$((rootH/2))" "${winID}";;
+      'l') wtp 0 0 "$((rootW/2))" "${rootH}" "${winID}";;
+      'r') wtp "$((rootW/2))" 0 "$((rootW/2))" "${rootH}" "${winID}";;
+      'tl') wtp 0 0 "$((rootW/2))" "$((rootH/2))" "${winID}";;
+      'tr') wtp "$((rootW/2))" 0 "$((rootW/2))" "$((rootH/2))" "${winID}";;
+      'bl') wtp 0 "$((rootW/2))" "$((rootW/2))" "$((rootH/2))" "${winID}";;
+      'br') wtp "$((rootH/2))" "$((rootW/2))" "$((rootW/2))" "$((rootH/2))" "${winID}";;
+      'c') wtp "$((rootW/4))" "$((rootH/4))" "$((rootW/2))" "$((rootH/2))" "${winID}";;
+    esac
+  done
 }
 
 # b(ac)k(u)p g(roup) <GID> [.. <GID>]
