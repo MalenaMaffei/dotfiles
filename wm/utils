@@ -57,16 +57,16 @@ function rstw(){
   done
 }
 
-# foc(us) w(indow) l(eft)/r(ight)/u(p)/d(own)/p(rev)/n(ext)
+# foc(us) w(indow) l(eft)/r(ight)/u(p)/d(own)/p(rev)/n(ext) [<WID>]
 function focw(){
-  local winID=$(pfw)
+  local winID=${1:-$(pfw)}
   case $1 in
-    l) wtf $(lsw | xargs wattr xi | sort -nr | sed "0,/$winID/d" | sed "1s/^[0-9]* //p;d");;
-    r) wtf $(lsw | xargs wattr yi | sort -n | sed "0,/$winID/d" | sed "1s/^[0-9]* //p;d");;
-    u) wtf $(lsw | xargs wattr yi | sort -nr | sed "0,/$winID/d" | sed "1s/^[0-9]* //p;d");;
-    d) wtf $(lsw | xargs wattr xi | sort -n | sed "0,/$winID/d" | sed "1s/^[0-9]* //p;d");;
-    n) wtf $(lsw | grep -v $winID | sed '1 p;d') ;;
-    p) wtf $(lsw | grep -v $winID | sed '$ p;d') ;;
+    l) wtf $(lsw | xargs wattr xi | sort -nr | sed "0,/${winID}/d" | sed "1s/^[0-9]* //p;d");;
+    r) wtf $(lsw | xargs wattr yi | sort -n | sed "0,/${winID}/d" | sed "1s/^[0-9]* //p;d");;
+    u) wtf $(lsw | xargs wattr yi | sort -nr | sed "0,/${winID}/d" | sed "1s/^[0-9]* //p;d");;
+    d) wtf $(lsw | xargs wattr xi | sort -n | sed "0,/${winID}/d" | sed "1s/^[0-9]* //p;d");;
+    n) wtf $(lsw | grep -v "${winID}" | sed '1 p;d') ;;
+    p) wtf $(lsw | grep -v "${winID}" | sed '$ p;d') ;;
   esac
 }
 
@@ -222,7 +222,7 @@ function modw(){
         if [[ -f "${wmWinFS}" ]]; then
           rstw $(cat "${wmWinFS}")
         fi
-        
+
         bkpw "${winID}"
         mapw -m "${winID}"
         wtp $(wattr xywh `lsw -r`) "${winID}"
