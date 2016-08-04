@@ -12,6 +12,7 @@ PAD_TOP="${PAD_TOP:-0}"
 PAD_BOT="${PAD_BOT:-0}"
 PAD_LEFT="${PAD_LEFT:-0}"
 PAD_RIGHT="${PAD_RIGHT:-0}"
+WIN_BORDER="${WIN_BORDER:-0}"
 
 # b(ac)k(u)p w(indow) <WID> [.. <WID>]
 function bkpw(){
@@ -219,15 +220,15 @@ function snaw(){
 
   for winID in "${winIDs[@]}"; do
     case "${winPos}" in
-      't') wtp "${PAD_LEFT}" "${PAD_TOP}" "${rootW}" "$((rootH/2))" "${winID}";;
-      'b') wtp "${PAD_LEFT}" "$((PAD_TOP+rootH/2))" "${rootW}" "$((rootH/2))" "${winID}";;
-      'l') wtp "${PAD_LEFT}" "${PAD_TOP}" "$((rootW/2))" "${rootH}" "${winID}";;
-      'r') wtp "$((PAD_LEFT+rootW/2))" "${PAD_TOP}" "$((rootW/2))" "${rootH}" "${winID}";;
-      'tl') wtp "${PAD_LEFT}" "${PAD_TOP}" "$((rootW/2))" "$((rootH/2))" "${winID}";;
-      'tr') wtp "$((PAD_LEFT+rootW/2))" "${PAD_TOP}" "$((rootW/2))" "$((rootH/2))" "${winID}";;
-      'bl') wtp "${PAD_LEFT}" "$((PAD_TOP+rootH/2))" "$((rootW/2))" "$((rootH/2))" "${winID}";;
-      'br') wtp "$((PAD_LEFT+rootW/2))" "$((PAD_TOP+rootH/2))" "$((rootW/2))" "$((rootH/2))" "${winID}";;
-      'c') wtp "$((PAD_LEFT+rootW/4))" "$((PAD_TOP+rootH/4))" "$((rootW/2))" "$((rootH/2))" "${winID}";;
+      't') wtp "${PAD_LEFT}" "${PAD_TOP}" "$((rootW - (2 * WIN_BORDER)))" "$((rootH/2 - (2 * WIN_BORDER)))" "${winID}";;
+      'b') wtp "${PAD_LEFT}" "$((PAD_TOP+rootH/2))" "$((rootW - (2 * WIN_BORDER)))" "$((rootH/2 - (2 * WIN_BORDER)))" "${winID}";;
+      'l') wtp "${PAD_LEFT}" "${PAD_TOP}" "$((rootW/2 - (2 * WIN_BORDER)))" "$((rootH - (2 * WIN_BORDER)))" "${winID}";;
+      'r') wtp "$((PAD_LEFT+rootW/2))" "${PAD_TOP}" "$((rootW/2 - (2 * WIN_BORDER)))" "$((rootH - (2 * WIN_BORDER)))" "${winID}";;
+      'tl') wtp "${PAD_LEFT}" "${PAD_TOP}" "$((rootW/2 - (2 * WIN_BORDER)))" "$((rootH/2 - (2 * WIN_BORDER)))" "${winID}";;
+      'tr') wtp "$((PAD_LEFT+rootW/2))" "${PAD_TOP}" "$((rootW/2 - (2 * WIN_BORDER)))" "$((rootH/2 - (2 * WIN_BORDER)))" "${winID}";;
+      'bl') wtp "${PAD_LEFT}" "$((PAD_TOP+rootH/2))" "$((rootW/2 - (2 * WIN_BORDER)))" "$((rootH/2 - (2 * WIN_BORDER)))" "${winID}";;
+      'br') wtp "$((PAD_LEFT+rootW/2))" "$((PAD_TOP+rootH/2))" "$((rootW/2 - (2 * WIN_BORDER)))" "$((rootH/2 - (2 * WIN_BORDER)))" "${winID}";;
+      'c') wtp "$((PAD_LEFT+rootW/4))" "$((PAD_TOP+rootH/4))" "$((rootW/2 - (2 * WIN_BORDER)))" "$((rootH/2 - (2 * WIN_BORDER)))" "${winID}";;
     esac
   done
 }

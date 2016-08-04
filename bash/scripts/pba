@@ -68,7 +68,7 @@ elif [[ "${fileList}" != "" ]]; then
     for fName in ${fileList[@]}; do
       [[ "${verbose}" -eq 1 ]] && echo "[INFO] Uploading file \"${fName}\""
       answer=$(curl -s -F c=@${fName} -w "%{redirect_url}" https://ptpb.pw?r=1 -o /dev/stdout)
-      
+      save_paste "${fName}" "${answer}"
       echo -e "${answer}"
     done
   # Multiple files, we have to archive
