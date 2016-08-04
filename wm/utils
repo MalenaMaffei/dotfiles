@@ -3,12 +3,16 @@
 set -e
 
 wmTMP='/tmp/.wm'
-wmWinBkp="${wmTMP}/.wbkps"
-wmGrpLst="${wmTMP}/.grpls"
-wmGrpBkp="${wmTMP}/.gbkps"
-wmWinFS="${wmTMP}/.winfs"
 
-[[ ! -d "${wmTMP}" ]] && mkdir -p "${wmTMP}"
+wmGroups="${wmTMP}/groups"
+wmWindows="${wmTMP}/windows"
+wmBackups="${wmTMP}/backups"
+wmWinFS="${wmBackups}/win.fs"
+
+[[ ! -d "${wmGroups}" ]] && mkdir -p "${wmGroups}"
+[[ ! -d "${wmWindows}" ]] && mkdir -p "${wmWindows}"
+[[ ! -d "${wmBackups}" ]] && mkdir -p "${wmBackups}"
+[[ ! -f "${wmWinFS}" ]] && touch "${wmWinFS}"
 
 PAD_TOP="${PAD_TOP:-0}"
 PAD_BOT="${PAD_BOT:-0}"
@@ -23,29 +27,33 @@ function bkpw(){
     local winY=$(wattr y "${winID}")
     local winW=$(wattr w "${winID}")
     local winH=$(wattr h "${winID}")
+    local winB=$(wattr b "${winID}")
+    local bakFile="${wmBackups}/win.${winID}"
 
-    [[ $(grep "${winID}" "${wmWinBkp}") ]] && continue
+    #[[ -f "${bakFile}" ]] && continue
 
-    echo "${winID};${winX};${winY};${winW};${winH}" | tee -a "${wmWinBkp}"
+    echo "${winX};${winY};${winW};${winH};${winB}" > "${bakFile}"
   done
 }
 
 # r(e)st(ore) w(indow) <WID> [.. <WID>]
 function rstw(){
   for winID in "${@}"; do
-    local winProp=$(grep "${winID}" "${wmWinBkp}")
+    local bakFile="${wmBackups}/win.${winID}"
 
-    [[ "${winProp}" == '' ]] && continue
+    [[ ! -f "${bakFile}" ]] && continue
 
-    local winX=$(echo "${winProp}" | cut -d ';' -f 2)
-    local winY=$(echo "${winProp}" | cut -d ';' -f 3)
-    local winW=$(echo "${winProp}" | cut -d ';' -f 4)
-    local winH=$(echo "${winProp}" | cut -d ';' -f 5)
+    local winProp=$(cat "${bakFile}")
+    local winX=$(echo "${winProp}" | cut -d ';' -f 1)
+    local winY=$(echo "${winProp}" | cut -d ';' -f 2)
+    local winW=$(echo "${winProp}" | cut -d ';' -f 3)
+    local winH=$(echo "${winProp}" | cut -d ';' -f 4)
+    local winB=$(echo "${winProp}" | cut -d ';' -f 5)
 
     wtp "${winX}" "${winY}" "${winW}" "${winH}" "${winID}" # Teleport window
     mapw -m "${winID}" # Show window
 
-    sed -i "/${winID}/d" "${wmWinBkp}"
+    rm "${bakFile}"
   done
 }
 
@@ -74,6 +82,9 @@ function movw(){
   local rootW=$(wattr w "${rootWin}")
   local rootH=$(wattr h "${rootWin}")
 
+  local rootW=$((rootW - PAD_LEFT - PAD_RIGHT))
+  local rootH=$((rootH - PAD_TOP - PAD_BOT))
+
   # if value is in percentage, calculate it now
   if [[ "${moveVal}" == *% ]]; then
     moveVal=$(echo "${moveVal}" | tr -d '%')
@@ -98,17 +109,17 @@ function movw(){
     elif [[ "${moveDir}" == 'l' && "${moveMod}" == '+' ]] || [[ "${moveDir}" == 'r' && "${moveMod}" == '-' ]]; then
       wmv "$((0 - moveVal))" 0 "${winID}"
     elif [[ "${moveDir}" == 'l' && "${moveMod}" == '=' ]]; then
-      wtp "${moveVal}" "${winY}" "${winW}" "${winH}" "${winID}"
+      wtp "$((PAD_LEFT + moveVal))" "${winY}" "${winW}" "${winH}" "${winID}"
     elif [[ "${moveDir}" == 'r' && "${moveMod}" == '=' ]]; then
-      wtp "$((rootW - winW - moveVal))" "${winY}" "${winW}" "${winH}" "${winID}"
+      wtp "$((rootW - winW - moveVal - PAD_RIGHT))" "${winY}" "${winW}" "${winH}" "${winID}"
     elif [[ "${moveDir}" == 'u' && "${moveMod}" == '-' ]] || [[ "${moveDir}" == 'd' && "${moveMod}" == '+' ]]; then
       wmv 0 "${moveVal}" "${winID}"
     elif [[ "${moveDir}" == 'u' && "${moveMod}" == '+' ]] || [[ "${moveDir}" == 'd' && "${moveMod}" == '-' ]]; then
       wmv 0 "$((0 - moveVal))" "${winID}"
     elif [[ "${moveDir}" == 'u' && "${moveMod}" == '=' ]]; then
-      wtp "${winX}" "${moveVal}" "${winW}" "${winH}" "${winID}"
+      wtp "${winX}" "$((PAD_TOP + moveVal))" "${winW}" "${winH}" "${winID}"
     elif [[ "${moveDir}" == 'd' && "${moveMod}" == '=' ]]; then
-      wtp "${winX}" "$((rootH - winH - moveVal))" "${winW}" "${winH}" "${winID}"
+      wtp "${winX}" "$((rootH - winH - moveVal - PAD_BOT))" "${winW}" "${winH}" "${winID}"
     fi
   done
 }
@@ -142,6 +153,10 @@ function resw(){
     local rootWin=$(lsw -r)
     local rootW=$(wattr w "${rootWin}")
     local rootH=$(wattr h "${rootWin}")
+
+    local rootW=$((rootW - PAD_LEFT - PAD_RIGHT))
+    local rootH=$((rootH - PAD_TOP - PAD_BOT))
+
     if [[ "${resDir}" == 'l' || "${resDir}" == 'r' || "${resDir}" == 'w' ]]; then
       resVal=$(echo "scale=0; ${rootW}/100*${resVal}" | bc -s)
     else
@@ -187,15 +202,16 @@ function modw(){
       ;;
       'd')
         rstw "${winID}"
+        mapw -m "${winID}"
       ;;
       'm')
         if [[ -f "${wmWinFS}" ]]; then
-          resw $(cat "${wmWinFS}")
-          rm "${wmWinFS}"
+          rstw $(cat "${wmWinFS}")
         fi
         bkpw "${winID}"
         mapw -m "${winID}"
         wtp $(wattr xywh `lsw -r`) "${winID}"
+        echo "${winID}" > "${wmWinFS}"
       ;;
     esac
   done
@@ -223,27 +239,51 @@ function snaw(){
 
   for winID in "${winIDs[@]}"; do
     case "${winPos}" in
-      't') wtp "${PAD_LEFT}" "${PAD_TOP}" "$((rootW - (2 * WIN_BORDER)))" "$((rootH/2 - (2 * WIN_BORDER)))" "${winID}";;
-      'b') wtp "${PAD_LEFT}" "$((PAD_TOP+rootH/2))" "$((rootW - (2 * WIN_BORDER)))" "$((rootH/2 - (2 * WIN_BORDER)))" "${winID}";;
-      'l') wtp "${PAD_LEFT}" "${PAD_TOP}" "$((rootW/2 - (2 * WIN_BORDER)))" "$((rootH - (2 * WIN_BORDER)))" "${winID}";;
-      'r') wtp "$((PAD_LEFT+rootW/2))" "${PAD_TOP}" "$((rootW/2 - (2 * WIN_BORDER)))" "$((rootH - (2 * WIN_BORDER)))" "${winID}";;
-      'tl') wtp "${PAD_LEFT}" "${PAD_TOP}" "$((rootW/2 - (2 * WIN_BORDER)))" "$((rootH/2 - (2 * WIN_BORDER)))" "${winID}";;
-      'tr') wtp "$((PAD_LEFT+rootW/2))" "${PAD_TOP}" "$((rootW/2 - (2 * WIN_BORDER)))" "$((rootH/2 - (2 * WIN_BORDER)))" "${winID}";;
-      'bl') wtp "${PAD_LEFT}" "$((PAD_TOP+rootH/2))" "$((rootW/2 - (2 * WIN_BORDER)))" "$((rootH/2 - (2 * WIN_BORDER)))" "${winID}";;
-      'br') wtp "$((PAD_LEFT+rootW/2))" "$((PAD_TOP+rootH/2))" "$((rootW/2 - (2 * WIN_BORDER)))" "$((rootH/2 - (2 * WIN_BORDER)))" "${winID}";;
-      'c') wtp "$((PAD_LEFT+rootW/4))" "$((PAD_TOP+rootH/4))" "$((rootW/2 - (2 * WIN_BORDER)))" "$((rootH/2 - (2 * WIN_BORDER)))" "${winID}";;
+      #         DISTANCE_LEFT           DISTANCE_TOP            WINDOW_WIDTH                      WINDOW_HEIGHT                     WINDOW_ID
+      't')  wtp "${PAD_LEFT}"           "${PAD_TOP}"            "$((rootW - (2 * WIN_BORDER)))"   "$((rootH/2 - (2 * WIN_BORDER)))" "${winID}";;
+      'b')  wtp "${PAD_LEFT}"           "$((PAD_TOP+rootH/2))"  "$((rootW - (2 * WIN_BORDER)))"   "$((rootH/2 - (2 * WIN_BORDER)))" "${winID}";;
+      'l')  wtp "${PAD_LEFT}"           "${PAD_TOP}"            "$((rootW/2 - (2 * WIN_BORDER)))" "$((rootH - (2 * WIN_BORDER)))"   "${winID}";;
+      'r')  wtp "$((PAD_LEFT+rootW/2))" "${PAD_TOP}"            "$((rootW/2 - (2 * WIN_BORDER)))" "$((rootH - (2 * WIN_BORDER)))"   "${winID}";;
+      'tl') wtp "${PAD_LEFT}"           "${PAD_TOP}"            "$((rootW/2 - (2 * WIN_BORDER)))" "$((rootH/2 - (2 * WIN_BORDER)))" "${winID}";;
+      'tr') wtp "$((PAD_LEFT+rootW/2))" "${PAD_TOP}"            "$((rootW/2 - (2 * WIN_BORDER)))" "$((rootH/2 - (2 * WIN_BORDER)))" "${winID}";;
+      'bl') wtp "${PAD_LEFT}"           "$((PAD_TOP+rootH/2))"  "$((rootW/2 - (2 * WIN_BORDER)))" "$((rootH/2 - (2 * WIN_BORDER)))" "${winID}";;
+      'br') wtp "$((PAD_LEFT+rootW/2))" "$((PAD_TOP+rootH/2))"  "$((rootW/2 - (2 * WIN_BORDER)))" "$((rootH/2 - (2 * WIN_BORDER)))" "${winID}";;
+      'c')  wtp "$((PAD_LEFT+rootW/4))" "$((PAD_TOP+rootH/4))"  "$((rootW/2 - (2 * WIN_BORDER)))" "$((rootH/2 - (2 * WIN_BORDER)))" "${winID}";;
     esac
   done
 }
 
 # b(ac)k(u)p g(roup) <GID> [.. <GID>]
 function bkpg(){
-  return
+  for grpID in "${@}"; do
+    local grpFile="${wmGroups}/${grpID}"
+    local bakFile="${wmBackups}/grp.${grpID}"
+
+    [[ ! -f "${grpFile}" ]] && continue
+
+    cat "${grpFile}" > "${bakFile}"
+  done
 }
 
 # r(e)st(ore) g(roup) <GID> [.. <GID>]
 function rstg(){
-  return
+  for grpID in "${@}"; do
+    local grpFile="${wmGroups}/${grpID}"
+    local bakFile="${wmBackups}/grp.${grpID}"
+
+    [[ ! -f "${bakFile}" ]] && continue
+
+    cat "${bakFile}" > "${grpFile}"
+    local grpState=$(cat "${grpFile}" | cut -d ';' -f 1)
+    local winIDs=$(cat "${grpFile}" | cut -d ';' -f 2+)
+
+    for winID in "${winIDs}"; do
+      case "${grpState}" in
+        's') mapw -m "${winID}";;
+        'h') mapw -u "${winID}";;
+      esac
+    done
+  done
 }
 
 # gro(up) w(indow) <GID> add(+)/del(-)/set(=) <WID> [.. <WID>]
@@ -252,22 +292,16 @@ function grow(){
   local grpAct=${2}
   shift; shift
   local winIDs="${@}"
+  local grpFile="${wmGroups}/${grpID}"
 
-  if [[ "${grpAct}" == '=' ]]; then
-    sed -i "/^${grpID}/d" "${wmGrpLst}"
+  if [[ ! -f "${grpFile}" ]]; then
+    echo "s;" >> "${grpFile}"
   fi
-
-  if [[ ! $(grep "\^${grpID}" "${wmGrpLst}") ]]; then
-    echo "${grpID};s;" >> "${wmGrpLst}"
-  fi
-
-  # Lines look like '0;s;0x00000010;0x00000019'
-  local grpLine=$(grep -n "\^${grpID};" "${wmGrpLst}" | cut -d ';' -f 1)
 
   for winID in "${winIDs[@]}"; do
     case "${grpAct}" in
-      '+'|'=') sed -i "${grpLine}s/$/${winID}\;/" "${wmGrpLst}";;
-      '-') sed -i "${grpLine}s/${winID}\;/d" "${wmGrpLst}";;
+      '+'|'=') sed -i "s/$/${winID}\;/" "${grpFile}";;
+      '-') sed -i "s/${winID}\;/d" "${grpFile}";;
     esac
   done
 }
@@ -276,32 +310,33 @@ function grow(){
 function modg(){
   local grpID=${1}
   local grpAct=${2}
-  # Lines look like '0;s;0x00000010;0x00000019'
-  local winIDs=$(grep "\^${grpID}" "${wmGrpLst}" | cut -d ';' -f 3+)
+  local grpFile="${wmGroups}/${grpID}"
 
-  if [[ "${winIDs}" == '' && "${grpAct}" != 'c' ]]; then
-    echo "${grpID};s;" >> "${wmGrpLst}"
+  if [[ ! -f "${grpFile}" ]]; then
+    return 1
   fi
+
+  local winIDs=$(cat "${grpFile}" | cut -d ';' -f 2+)
 
   case "${grpAct}" in
     's')
-      sed -i "s/\^${grpID};h/${grpID};s/" "${wmGrpLst}"
+      sed -i "s/\^h/s/" "${grpFile}"
       local newMod='s'
     ;;
     'h')
-      sed -i "s/\^${grpID};s/${grpID};h/" "${wmGrpLst}"
+      sed -i "s/\^s/h/" "${grpFile}"
       local newMod='h'
     ;;
     't')
-      if [[ $(grep "\^${grpID};.*" "${wmGrpLst}" | cut -d ';' -f 2) == 's' ]]; then
-        sed -i "s/\^${grpID};s/${grpID};h/" "${wmGrpLst}"
+      if [[ $(cat "${grpFile}" | cut -d ';' -f 1) == 's' ]]; then
+        sed -i "s/\^s/h/" "${grpFile}"
         local newMod='h'
       else
-        sed -i "s/\^${grpID};h/${grpID};s/" "${wmGrpLst}"
+        sed -i "s/\^h/s/" "${grpFile}"
         local newMod='s'
       fi
     ;;
-    'c') sed -i "/^${grpID}/d" "${wmGrpLst}";;
+    'c') rm "${grpFile}"
   esac
 
   for winID in "${winIDs[@]}"; do

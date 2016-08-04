@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+# l(og) o(ff) u(se)r
+function lour(){
+  notify-send -u critical 'User is logging off.'
+  sleep "${1:-1}"
+  killall bash
+}
+
+# l(oc)k u(se)r
+function lkur(){
+  notify-send -u critical 'User is locking.'
+  sleep "${1:-1}"
+  physlock
+}
+
+# s(hut)d(own) pc
+function sdpc(){
+  notify-send -u critical 'Computer is shutting down.'
+  sleep "${1:-1}"
+  systemctl poweroff
+}
+
+# h(iber)n(ate) pc
+function hnpc(){
+  notify-send -u critical 'Computer is hibernating.'
+  sleep "${1:-1}"
+  systemctl hibernate
+}
+
+# r(e)b(oot) pc
+function rbpc(){
+  notify-send -u critical 'Computer is rebooting.'
+  sleep "${1:-1}"
+  systemctl reboot
+}

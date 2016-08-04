@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+# Read more about it on
+# https://github.com/baskerville/sxhkd/blob/master/parse.c#L384
+
+# --------------------------------------------------------
+# wmutils bindings
+# --------------------------------------------------------
+
+# foc(us) w(indow) l(eft)/r(ight)/u(p)/d(own)/p(rev)/n(ext)
+# Example focw u
+super + {a,d,w,s,q,e}
+  focw {l,r,u,d,p,n}
+
+# mov(e) w(indow) l(eft)/r(ight)/u(p)/d(own) inc(+)/dec(-)/to(=) ?px/?% <WID> [.. <WID>]
+# Example: movw d 5% $(pfw)
+super + {Left,Right,Up,Down}
+  movw {l,r,u,d} + 10px $(pfw)
+super + {Home,PageUp,End,PageDown}
+  movw l {- 10px,+ 10px,- 10px,+ 10px} $(pfw)
+  movw u {- 10px,- 10px,+ 10px,+ 10px} $(pfw)
+
+# tel(eport) w(indow) <x> <y> <z> <WID> [.. <WID>]
+# Example: telw 0 250 0 $(pfw)
+
+# res(ize) w(indow) l(eft)/r(ight)/u(p)/d(own)/h(eight)/w(idth) inc(+)/dec(-)/to(=) ?px/?% <WID> [.. <WID>]
+# Example: resw w + 5% $(pfw)
+super + ctrl + {Left,Right,Up,Down}
+  resw {l,r,u,d} + 10px $(pfw)
+super + shift + {Left,Right,Up,Down}
+  resw {l,r,u,d} - 10px $(pfw)
+
+# mod(ify) w(indow) h(ide)/(m)a(ximize)/d(efault) <WID> [.. <WID>]
+# Example: modw a $(pfw)
+super + shift + {s,w,x}
+  modw {h,a,d} $(pfw)
+
+# mo(dify) w(indow) s(tacking order) inc(+)/dec(-)/to(=)/f(ront)/b(ack) ? <WID> [.. <WID>]
+# Example: mows + 1 $(pfw)
+super + shift + {e,q}
+  mows {+,-} 1 $(pfw)
+super + shift + {pageUp,pageDown}
+  mows {f,b} $(pfw)
+
+# sna(p) w(indow) t(op)/b(ottom)/l(eft)/r(ight)/t(op)l(eft)/t(op)r(ight)/b(ottom)l(eft)/b(ottom)r(ight)/c(enter) <WID> [.. <WID>]
+# Example: snaw tl $(pfw)
+super + alt + {w,s,a,d,q,e,y,x,c}
+  snaw {t,b,l,r,tl,tr,bl,br,c} $(pfw)
+
+# gro(up) w(indow) <GID|all> add(+)/del(-)/set(=) <WID> [.. <WID>]
+# Example: grow 0 + $(pfw)
+super + ctrl + {0-9}
+  grow {0-9} + $(pfw)
+super + shift + {0-9}
+  grow {0-9} - $(pfw)
+
+# mod(ify) g(roup) <GID|all> s(how)/h(ide)/t(oggle)/c(lear)
+# Example: modg 0 s
+super + alt + {0-9}
+  modg {0-9} t
+super + alt + {pageUp,pageDown}
+  modg all {s,h}
+
+# b(ac)k(u)p g(roup) <GID> [.. <GID>]
+super + Insert; {0-9}
+  bkpg {0-9}
+
+# r(e)st(ore) g(roup) <GID> [.. <GID>]
+super + Delete; {0-9}
+  rstg {0-9}
+
+# ch(ange) w(indow) l(ayout) t(ile)/f(loating)/m(onocycle)
+# Example: chwl t
+super + alt + {t,f,r}
+  chwl {t,f,m}
+  
+# --------------------------------------------------------
+# Other bindings
+# --------------------------------------------------------
+
+# Lock, Logoff, Shutdown, Hibernate, Reboot
+super + Delete + {c,f,w,e,r}
+  {lkur,lour,sdpc,hnpc,rbpc}
+
+# Reload bindings
+super + Delete + Escape
+   killall -USR1 sxhkd
+   
+super + Return
+  termite
+  
+super + Home
+nautilus
