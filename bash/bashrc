@@ -11,6 +11,9 @@ source ~/.config/bash/defaults
 source ~/.config/bash/paths
 source ~/.config/bash/functions
 
+source ~/dotfiles/wm/utils
+source ~/dotfiles/wm/power
+
 #source "${HOME}/.bash_funcs"
 
 [[ $- == *i* ]] && ~/.config/bash/message

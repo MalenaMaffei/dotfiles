@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+setroot -z "$(find "${HOME}/pictures/wallpapers" -maxdepth 1 -type f -exec file {} \; | awk -F: '{if ($2 ~/image/) print $1}' | sort -R | head -n 1)" &
+
+[[ ! $(pgrep 'dunst') ]] && dunst &
+[[ ! $(pgrep 'sxhkd') ]] && sxhkd -c ~/dotfiles/wm/hotkeys &
+[[ ! $(pgrep 'compton') ]] && compton -b --config ~/.config/compton/compton.conf
+[[ ! $(pgrep 'mpd') ]] && mpd &
+[[ ! $(pgrep 'gpg-agent') ]] && gpg-connect-agent reloadagent /bye
+
+[[ ! $(pgrep -f 'panel') ]] && ~/dotfiles/wm/panel &
+
+sleep 2s
+[[ ! $(pgrep -f 'displays') ]] && ~/dotfiles/wm/displays &

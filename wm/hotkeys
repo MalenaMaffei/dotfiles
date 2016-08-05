@@ -6,6 +6,11 @@
 # wmutils bindings
 # --------------------------------------------------------
 
+# Kill window
+super + x
+  killw $(pfw)
+  #kill $(xprop -id $(pfw) | grep PID | cut -b25-)
+
 # foc(us) w(indow) l(eft)/r(ight)/u(p)/d(own)/p(rev)/n(ext)
 # Example focw u
 super + {a,d,w,s,q,e}
@@ -16,8 +21,8 @@ super + {a,d,w,s,q,e}
 super + {Left,Right,Up,Down}
   movw {l,r,u,d} + 10px $(pfw)
 super + {Home,PageUp,End,PageDown}
-  movw l {- 10px,+ 10px,- 10px,+ 10px} $(pfw)
-  movw u {- 10px,- 10px,+ 10px,+ 10px} $(pfw)
+  movw l {-,+,-,+} 10px $(pfw)
+  movw u {-,-,+,+} 10px $(pfw)
 
 # tel(eport) w(indow) <x> <y> <z> <WID> [.. <WID>]
 # Example: telw 0 250 0 $(pfw)
@@ -31,7 +36,7 @@ super + shift + {Left,Right,Up,Down}
 
 # mod(ify) w(indow) h(ide)/(m)a(ximize)/d(efault)/f(ullscreen) <WID> [.. <WID>]
 # Example: modw a $(pfw)
-super + shift + {q,w,d,f}
+super + shift + {y,x,d,f}
   modw {h,a,d,f} $(pfw)
 
 # mo(dify) w(indow) s(tacking order) inc(+)/dec(-)/to(=)/f(ront)/b(ack) ? <WID> [.. <WID>]
@@ -43,7 +48,7 @@ super + shift + {pageUp,pageDown}
 
 # sna(p) w(indow) t(op)/b(ottom)/l(eft)/r(ight)/t(op)l(eft)/t(op)r(ight)/b(ottom)l(eft)/b(ottom)r(ight)/c(enter) <WID> [.. <WID>]
 # Example: snaw tl $(pfw)
-super + alt + {w,s,a,d,q,e,y,x,c}
+super + alt + {w,s,a,d,q,e,z,x,c}
   snaw {t,b,l,r,tl,tr,bl,br,c} $(pfw)
 
 # gro(up) w(indow) <GID|all> add(+)/del(-)/set(=) <WID> [.. <WID>]
@@ -78,7 +83,7 @@ super + alt + {t,f,r}
 # --------------------------------------------------------
 
 # Lock, Logoff, Shutdown, Hibernate, Reboot
-super + Delete + {c,f,w,e,r}
+super + shift + {k,l,n,h,o}
   {lkur,lour,sdpc,hnpc,rbpc}
 
 # Reload bindings
@@ -88,5 +93,59 @@ super + Delete + Escape
 super + Return
   termite
   
-super + Home
-nautilus
+#super + Home
+#  nautilus
+
+super + period
+  ~/.config/bash/scripts/dmenu-fm
+
+super + comma
+  ~/.config/bash/scripts/dmenu-mp
+
+# program launcher
+super + space
+  ~/.config/bash/scripts/dmenu-ex
+
+super + ctrl + space
+  ~/.config/bash/scripts/dmenu-pw
+
+## Audio Volume Keys
+XF86AudioRaiseVolume
+  amixer -q sset Master 5%+
+
+XF86AudioLowerVolume
+  amixer -q sset Master 5%-
+
+XF86AudioMute
+  amixer -q sset Master toggle
+
+## Audio Playback Keys
+{XF86AudioPrev, XF86AudioNext, XF86AudioPlay}
+  playerctl {previous,next,play-pause}
+
+## Brightness Keys
+XF86MonBrightnessUp
+  xbacklight -inc 10
+
+XF86MonBrightnessDown
+  xbacklight -dec 10
+
+# Reload displays
+#super + d
+#  rm /tmp/.displays
+
+# Start screen recording
+ctrl + alt + r
+  ~/.config/bash/scripts/record
+
+# Stop screen recording
+ctrl + alt + x
+  pkill -f 'x11grab'
+
+# screenshot
+{,ctrl +,shift +} @Print
+  ~/.config/bash/scripts/scrot {window,area}
+
+# change wallpaper and create theme from it
+#ctrl + shift + w
+#  ~/.config/bspwm/change_theme 'y'

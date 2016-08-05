@@ -33,3 +33,5 @@ echo 'Starting Window-Manager' >> ~/.xinit.log
 #(sleep 5s && ~/.config/bspwm/change_theme 'y') &
 
 exec bspwm 1> ~/.bspwm.out 2> ~/.bspwm.err
+
+#exec ~/dotfiles/wm/xwait

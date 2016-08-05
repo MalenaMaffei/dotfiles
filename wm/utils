@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+#set -e
 
 wmTMP='/tmp/.wm'
 
@@ -59,7 +59,10 @@ function rstw(){
 
 # foc(us) w(indow) l(eft)/r(ight)/u(p)/d(own)/p(rev)/n(ext) [<WID>]
 function focw(){
-  local winID=${1:-$(pfw)}
+  local winID=${1}
+
+  [[ "${winID}" == '' ]] && winID=$(pfw)
+
   case $1 in
     l) wtf $(lsw | xargs wattr xi | sort -nr | sed "0,/${winID}/d" | sed "1s/^[0-9]* //p;d");;
     r) wtf $(lsw | xargs wattr yi | sort -n | sed "0,/${winID}/d" | sed "1s/^[0-9]* //p;d");;
@@ -135,7 +138,7 @@ function telw(){
     local winW=$(wattr w "${winID}")
     local winH=$(wattr h "${winID}")
 
-    wtp "${winX}" "${winY}" "${winW}" "${winH}" "${winID}"
+    wtp "${newX}" "${newY}" "${winW}" "${winH}" "${winID}"
   done
 }
 
@@ -204,7 +207,7 @@ function modw(){
         rstw "${winID}"
         mapw -m "${winID}"
       ;;
-      'm')
+      'a')
         local rootWin=$(lsw -r)
         local rootW=$(wattr w "${rootWin}")
         local rootH=$(wattr h "${rootWin}")
@@ -215,8 +218,6 @@ function modw(){
         bkpw "${winID}"
         mapw -m "${winID}"
         wtp "${PAD_LEFT}" "${PAD_TOP}" "${rootW}" "${rootH}" "${winID}"
-
-        echo "${winID}" > "${wmWinFS}"
       ;;
       'f')
         if [[ -f "${wmWinFS}" ]]; then
@@ -317,7 +318,7 @@ function grow(){
   for winID in "${winIDs[@]}"; do
     case "${grpAct}" in
       '+'|'=') sed -i "s/$/${winID}\;/" "${grpFile}";;
-      '-') sed -i "s/${winID}\;/d" "${grpFile}";;
+      '-') sed -i "s/${winID}\;//" "${grpFile}";;
     esac
   done
 }
@@ -367,3 +368,5 @@ function modg(){
 function chwl(){
   return
 }
+
+export -f bkpw rstw focw movw telw resw modw mows snaw bkpg grow modg chwl

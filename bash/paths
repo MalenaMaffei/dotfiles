@@ -4,8 +4,6 @@ export PATH="${PATH}:~/.config/bash/scripts"
 export PATH="${PATH}:~/code/shell/wp-themes/src"
 export PATH="${PATH}:~/code/shell/udsys/src"
 
-source ~/dotfiles/wm/utils
-
 #export PATH="$PATH:./node_modules/.bin"
 #export PATH="$PATH:/opt/racer/target/debug/"
 

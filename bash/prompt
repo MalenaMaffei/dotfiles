@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 
 function command_not_found_handle () {
+  #lastcmd=$(history | tail -1 | sed 's/^ *[0-9]* *//')
+  #history -d $(history 1)
+
+  #>&2 echo "DEBUG: ${1}"
+
   >&2 echo "
   ┌──────────────────┐
   │ Unknown command! │

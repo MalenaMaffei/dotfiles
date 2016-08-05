@@ -5,7 +5,9 @@ function lour(){
   notify-send -u critical 'User is logging off.'
   sleep "${1:-1}"
   local winMan=$(grep 'exec' "${HOME}/.xinitrc" | tail -n 1 | awk -F ' ' '{print $2}')
-  killall "${winMan}" bash
+  local winPID=$(pgrep -f "${winMan}")
+  killall bash
+  kill "${winPID}"
 }
 
 # l(oc)k u(se)r
@@ -35,3 +37,5 @@ function rbpc(){
   sleep "${1:-1}"
   systemctl reboot
 }
+
+export -f lour lkur sdpc hnpc rbpc
