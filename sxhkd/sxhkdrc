@@ -222,3 +222,10 @@ ctrl + shift + @Print
 # change wallpaper and create theme from it
 ctrl + shift + w
   ~/.config/bspwm/change_theme 'y'
+
+super + alt + {w,s,a,d,q,e,z,x,c}
+  snaw {t,b,l,r,tl,tr,bl,br,c} $(pfw)
+
+#super + {Home,PageUp,End,PageDown}
+#  movw l {-,+,-,+} 10px $(pfw); \
+#  movw u {-,-,+,+} 10px $(pfw)

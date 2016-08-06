@@ -47,11 +47,11 @@ while [[ 1 ]]; do
       fi
     done
 
-    echo "$(bspc query -D -d)" > "${desktopFile}"
+    #echo "$(bspc query -D -d)" > "${desktopFile}"
     ${cmd}
 
     echo "${activeDisplays}" > "${displayFile}"
-    ~/.config/bspwm/bspwmrc 'refresh'
+    #~/.config/bspwm/bspwmrc 'refresh'
   fi
 
   if  [[ "${1}" == 'once' ]]; then

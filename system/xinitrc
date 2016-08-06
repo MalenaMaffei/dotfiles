@@ -34,4 +34,6 @@ echo 'Starting Window-Manager' >> ~/.xinit.log
 
 exec bspwm 1> ~/.bspwm.out 2> ~/.bspwm.err
 
-#exec ~/dotfiles/wm/xwait
+#~/dotfiles/wm/login &
+#~/dotfiles/wm/xwait 'panel' &
+#exec ~/dotfiles/wm/xwait 'xevents'

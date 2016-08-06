@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
-~/dotfiles/wm/login
+prog="${1:-xevents}"
 
 while :; do
-  ~/dotfiles/wm/xevents
+  #[[ $(pgrep -f "${prog}") ]] && kill $(pgrep -f "${prog}")
+  "${HOME}/dotfiles/wm/${prog}"
   sleep 1s;
+  notify-send -u 'low' "Restarting \"${prog}\"."
 done

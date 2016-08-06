@@ -26,7 +26,8 @@ sleep 2.
 
 # Join a few channels
 echo 'Joining channels!'
-echo '/join #archlinux' > 'irc/irc.freenode.net/in'
-echo '/join #bspwm' > 'irc/irc.freenode.net/in'
+#echo '/join #archlinux' > 'irc/irc.freenode.net/in'
+#echo '/join #bspwm' > 'irc/irc.freenode.net/in'
+#echo '/join #unix' > 'irc/irc.freenode.net/in'
 
 echo 'All done! Enjoy chatting!'

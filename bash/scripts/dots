@@ -101,6 +101,15 @@ function _exec_sync(){
     [[ "${GPG_ID}" == '' ]] && GPG_ID=$(gpg -K 2>/dev/null | grep -E -o "\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}\b" | head -n 1)
   fi
 
+  local OPTIND
+  local force=0
+
+  while getopts ":f" opt; do
+    case $opt in
+      f) force=1;;
+    esac
+  done
+
   for linkPair in "${dots_links[@]}"; do
     local linkTarget=$(echo "${linkPair}" | cut -d ';' -f '1')
     local linkSource=$(echo "${linkPair}" | cut -d ';' -f '2')
@@ -113,7 +122,12 @@ function _exec_sync(){
 
     # Check if file is symbol link
     if [[ -L "${linkTarget}" ]]; then
-      [[ "${dots_conf_verbose}" == 'on' ]] && echo "[INFO] Target \"${linkTarget}\" already exists and is a valid link."
+      if [[ "${force}" -eq 0 ]]; then
+        [[ "${dots_conf_verbose}" == 'on' ]] && echo "[INFO] Target \"${linkTarget}\" already exists and is a valid link."
+      else
+        [[ "${dots_conf_verbose}" == 'on' ]] && echo "[INFO] Forced renewing \"${linkTarget}\"."
+        rm -rf "${linkTarget}"
+      fi
     elif [[ -f "${linkTarget}" ]] || [[ -d "${linkTarget}" ]]; then
       [[ "${dots_conf_verbose}" == 'on' ]] && echo "[INFO] Target \"${linkTarget}\" already exists but is a normal file/directory."
 

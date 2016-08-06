@@ -60,17 +60,20 @@ function rstw(){
 # foc(us) w(indow) l(eft)/r(ight)/u(p)/d(own)/p(rev)/n(ext) [<WID>]
 function focw(){
   local winID=${1}
+  local newID=''
 
   [[ "${winID}" == '' ]] && winID=$(pfw)
 
   case $1 in
-    l) wtf $(lsw | xargs wattr xi | sort -nr | sed "0,/${winID}/d" | sed "1s/^[0-9]* //p;d");;
-    r) wtf $(lsw | xargs wattr yi | sort -n | sed "0,/${winID}/d" | sed "1s/^[0-9]* //p;d");;
-    u) wtf $(lsw | xargs wattr yi | sort -nr | sed "0,/${winID}/d" | sed "1s/^[0-9]* //p;d");;
-    d) wtf $(lsw | xargs wattr xi | sort -n | sed "0,/${winID}/d" | sed "1s/^[0-9]* //p;d");;
-    n) wtf $(lsw | grep -v "${winID}" | sed '1 p;d') ;;
-    p) wtf $(lsw | grep -v "${winID}" | sed '$ p;d') ;;
+    l) newID=$(lsw | xargs wattr xi | sort -nr | sed "0,/${winID}/d" | sed "1s/^[0-9]* //p;d");;
+    r) newID=$(lsw | xargs wattr yi | sort -n | sed "0,/${winID}/d" | sed "1s/^[0-9]* //p;d");;
+    u) newID=$(lsw | xargs wattr yi | sort -nr | sed "0,/${winID}/d" | sed "1s/^[0-9]* //p;d");;
+    d) newID=$(lsw | xargs wattr xi | sort -n | sed "0,/${winID}/d" | sed "1s/^[0-9]* //p;d");;
+    n) newID=$(lsw | grep -v "${winID}" | sed '1 p;d') ;;
+    p) newID=$(lsw | grep -v "${winID}" | sed '$ p;d') ;;
   esac
+
+  [[ "${newID}" != '' ]] && wtf "${newID}"
 }
 
 # mov(e) w(indow) l(eft)/r(ight)/u(p)/d(own) inc(+)/dec(-)/to(=) ?px/?% <WID> [.. <WID>]
@@ -174,20 +177,23 @@ function resw(){
     local winW=$(wattr w "${winID}")
     local winH=$(wattr h "${winID}")
 
+    #echo "win ${winID} size ${winW}x${winH}"
+
     if [[ "${resDir}" == 'l' && "${resMod}" == '+' ]] || [[ "${resDir}" == 'r' && "${resMod}" == '-' ]]; then
-      winW=$((winW + resVal))
-    elif [[ "${resDir}" == 'l' && "${resMod}" == '-' ]] || [[ "${resDir}" == 'r' && "${resMod}" == '+' ]]; then
       winW=$((winW - resVal))
+    elif [[ "${resDir}" == 'l' && "${resMod}" == '-' ]] || [[ "${resDir}" == 'r' && "${resMod}" == '+' ]]; then
+      winW=$((winW + resVal))
     elif [[ "${resDir}" == 'w' && "${resMod}" == '=' ]]; then
       winW=$((resVal))
     elif [[ "${resDir}" == 'u' && "${resMod}" == '+' ]] || [[ "${resDir}" == 'd' && "${resMod}" == '-' ]]; then
-      winH=$((winH + resVal))
-    elif [[ "${resDir}" == 'u' && "${resMod}" == '-' ]] || [[ "${resDir}" == 'd' && "${resMod}" == '+' ]]; then
       winH=$((winH - resVal))
+    elif [[ "${resDir}" == 'u' && "${resMod}" == '-' ]] || [[ "${resDir}" == 'd' && "${resMod}" == '+' ]]; then
+      winH=$((winH + resVal))
     elif [[ "${resDir}" == 'h' && "${resMod}" == '=' ]]; then
       winH=$((resVal))
     fi
     wrs -a "${winW}" "${winH}" "${winID}"
+    #echo "win ${winID} resize ${winW}x${winH}"
   done
 }
 

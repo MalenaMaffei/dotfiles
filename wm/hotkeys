@@ -20,9 +20,9 @@ super + {a,d,w,s,q,e}
 # Example: movw d 5% $(pfw)
 super + {Left,Right,Up,Down}
   movw {l,r,u,d} + 10px $(pfw)
-super + {Home,PageUp,End,PageDown}
-  movw l {-,+,-,+} 10px $(pfw)
-  movw u {-,-,+,+} 10px $(pfw)
+#super + {Home,PageUp,End,PageDown}
+#  movw l {+,-,+,-} 10px $(pfw) & \
+#  movw u {+,+,-,-} 10px $(pfw)
 
 # tel(eport) w(indow) <x> <y> <z> <WID> [.. <WID>]
 # Example: telw 0 250 0 $(pfw)
@@ -60,23 +60,23 @@ super + shift + {0-9}
 
 # mod(ify) g(roup) <GID|all> s(how)/h(ide)/t(oggle)/c(lear)
 # Example: modg 0 s
-super + alt + {0-9}
-  modg {0-9} t
-super + alt + {pageUp,pageDown}
-  modg all {s,h}
+#super + alt + {0-9}
+#  modg {0-9} t
+#super + alt + {pageUp,pageDown}
+#  modg all {s,h}
 
 # b(ac)k(u)p g(roup) <GID> [.. <GID>]
-super + Insert; {0-9}
-  bkpg {0-9}
+#super + Insert; {0-9}
+#  bkpg {0-9}
 
 # r(e)st(ore) g(roup) <GID> [.. <GID>]
-super + Delete; {0-9}
-  rstg {0-9}
+#super + Delete; {0-9}
+#  rstg {0-9}
 
 # ch(ange) w(indow) l(ayout) t(ile)/f(loating)/m(onocycle)
 # Example: chwl t
-super + alt + {t,f,r}
-  chwl {t,f,m}
+#super + alt + {t,f,r}
+#  chwl {t,f,m}
   
 # --------------------------------------------------------
 # Other bindings
@@ -149,3 +149,5 @@ ctrl + alt + x
 # change wallpaper and create theme from it
 #ctrl + shift + w
 #  ~/.config/bspwm/change_theme 'y'
+
+#super + !button1

@@ -35,26 +35,38 @@
 # MAPPING_NOTIFY ..... 34
 # GE_GENERIC ......... 35
 
+eval "$(xres2var)"
+
+function setupWindow(){
+  local winID="${1}"
+  local color="0x$(echo "${base0A}" | tr -d '#')"
+
+  [[ $(wattr o "$(winID)") ]] || return 1
+
+  [[ $(pgrep 'bspwm') ]] && bspc node -t floating
+  
+  #wmp -a $(wattr xy "${winID}") # move the mouse cursor to
+  #wmp -r "$((winW /2))" "$((winH /2))" # .. its bottom right corner
+  chwb -c "${color}" -s "${WIN_BORDER}" "${winID}"
+  wtf "${winID}"
+  snaw c "${winID}"
+
+  notify-send "${winID} <> $(pfw)"
+}
+
+#function winDestroy(){
+#  focw p
+#  echo
+#}
+
+export -f setupWindow
+
 function main(){
   wew | while IFS=':' read eventID winID; do
     case ${eventID} in
-      # window creation: center window on the screen (except docks, menus or similar)
-      16)
-        local winName=$(xprop -id "${winID}" 'WM_NAME' | cut -d ' ' -f 3)
-        local winClass=$(xprop -id "${winID}" WM_CLASS | cut -d ' ' -f 3)
-
-        #notify-send "Testing <${winName}> <${winClass}>"
-        
-        if [[ "${winName}" != *bar* ]] && [[ "${winClass}" != *dmenu* ]]; then
-          bspc node -t floating
-          snaw c "${winID}"
-          local winW=$(wattr w "${winID}")
-          local winH=$(wattr h "${winID}")
-          wmp -a $(wattr xy "${winID}") # move the mouse cursor to
-          wmp -r "$((winW /2))" "$((winH /2))" # .. its bottom right corner
-        fi
-      ;;
-      #*) echo "${eventID} ${winID} ${winType}";;
+      16) setupWindow "${winID}";;
+      #18) closeWindow "${winID}";;
+      #*) notify-send "${eventID} - ${winID}";;
     esac
   done
 }

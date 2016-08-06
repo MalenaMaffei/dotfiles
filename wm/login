@@ -8,7 +8,8 @@ setroot -z "$(find "${HOME}/pictures/wallpapers" -maxdepth 1 -type f -exec file 
 [[ ! $(pgrep 'mpd') ]] && mpd &
 [[ ! $(pgrep 'gpg-agent') ]] && gpg-connect-agent reloadagent /bye
 
-[[ ! $(pgrep -f 'panel') ]] && ~/dotfiles/wm/panel &
-
-sleep 2s
 [[ ! $(pgrep -f 'displays') ]] && ~/dotfiles/wm/displays &
+
+notify-send -u 'low' 'User is logged in.'
+
+(sleep 2; ~/dotfiles/wm/xwait 'panel') &
