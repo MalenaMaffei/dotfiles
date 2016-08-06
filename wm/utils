@@ -60,20 +60,35 @@ function rstw(){
 # foc(us) w(indow) l(eft)/r(ight)/u(p)/d(own)/p(rev)/n(ext) [<WID>]
 function focw(){
   local winID=${1}
-  local newID=''
 
-  [[ "${winID}" == '' ]] && winID=$(pfw)
+  #[[ "${winID}" == '' ]] && winID=$(pfw)
 
-  case $1 in
-    l) newID=$(lsw | xargs wattr xi | sort -nr | sed "0,/${winID}/d" | sed "1s/^[0-9]* //p;d");;
-    r) newID=$(lsw | xargs wattr yi | sort -n | sed "0,/${winID}/d" | sed "1s/^[0-9]* //p;d");;
-    u) newID=$(lsw | xargs wattr yi | sort -nr | sed "0,/${winID}/d" | sed "1s/^[0-9]* //p;d");;
-    d) newID=$(lsw | xargs wattr xi | sort -n | sed "0,/${winID}/d" | sed "1s/^[0-9]* //p;d");;
-    n) newID=$(lsw | grep -v "${winID}" | sed '1 p;d') ;;
-    p) newID=$(lsw | grep -v "${winID}" | sed '$ p;d') ;;
+  case "${winID}" in
+    l) winID=$(lsw | xargs wattr xi | sort -nr | sed "0,/${winID}/d" | sed "1s/^[0-9]* //p;d");;
+    r) winID=$(lsw | xargs wattr yi | sort -n | sed "0,/${winID}/d" | sed "1s/^[0-9]* //p;d");;
+    u) winID=$(lsw | xargs wattr yi | sort -nr | sed "0,/${winID}/d" | sed "1s/^[0-9]* //p;d");;
+    d) winID=$(lsw | xargs wattr xi | sort -n | sed "0,/${winID}/d" | sed "1s/^[0-9]* //p;d");;
+    n) winID=$(lsw | grep -v "${winID}" | sed '1 p;d') ;;
+    p) winID=$(lsw | grep -v "${winID}" | sed '$ p;d') ;;
+    0x*) wattr "${winID}" || return 1 ;;
+    *) return 1 ;;
   esac
 
-  [[ "${newID}" != '' ]] && wtf "${newID}"
+  #case $1 in
+  #  next) wid=$(lsw|grep -v $CUR|sed '1 p;d') ;;
+  #  prev) wid=$(lsw|grep -v $CUR|sed '$ p;d') ;;
+  #  0x*) wattr $1 && wid=$1 ;;
+  #  *) usage ;;
+  #esac
+
+  [ -z "${winID}" ] && { echo "focw: no window to focus" >&2; exit 1; }
+
+  chwso -r "${winID}"
+  wtf "${winID}"
+  #setb active $wid
+  #setb inactive $CUR
+
+  #[[ "${newID}" != '' ]] && wtf "${newID}"
 }
 
 # mov(e) w(indow) l(eft)/r(ight)/u(p)/d(own) inc(+)/dec(-)/to(=) ?px/?% <WID> [.. <WID>]

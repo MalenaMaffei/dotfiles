@@ -41,20 +41,32 @@ function setupWindow(){
   local winID="${1}"
   local color="0x$(echo "${base0A}" | tr -d '#')"
 
-  [[ $(wattr o "$(winID)") ]] || return 1
-
+  [[ $(wattr o "${winID}") ]] && continue
   [[ $(pgrep 'bspwm') ]] && bspc node -t floating
   
   #wmp -a $(wattr xy "${winID}") # move the mouse cursor to
   #wmp -r "$((winW /2))" "$((winH /2))" # .. its bottom right corner
   chwb -c "${color}" -s "${WIN_BORDER}" "${winID}"
-  wtf "${winID}"
   snaw c "${winID}"
 
-  notify-send "${winID} <> $(pfw)"
+  #notify-send "${winID} <> $(pfw)"
 }
 
-#function winDestroy(){
+function mapWindow(){
+  local winID="${1}"
+
+  [[ $(wattr o "${winID}") ]] && continue
+
+  wtf "${winID}"
+}
+
+function closeWindow(){
+  [[ $(wattr "$(pfw)") ]] && return
+
+  focw p
+}
+
+#function closeWindow(){
 #  focw p
 #  echo
 #}
@@ -65,8 +77,8 @@ function main(){
   wew | while IFS=':' read eventID winID; do
     case ${eventID} in
       16) setupWindow "${winID}";;
-      #18) closeWindow "${winID}";;
-      #*) notify-send "${eventID} - ${winID}";;
+      19) mapWindow "${winID}";;
+      18) closeWindow "${winID}";;
     esac
   done
 }
