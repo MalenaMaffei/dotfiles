@@ -59,7 +59,7 @@ function rstw(){
 
 # foc(us) w(indow) l(eft)/r(ight)/u(p)/d(own)/p(rev)/n(ext) [<WID>]
 function focw(){
-  local winID=${1}
+  local winID="${1}"
 
   #[[ "${winID}" == '' ]] && winID=$(pfw)
 
@@ -71,7 +71,6 @@ function focw(){
     n) winID=$(lsw | grep -v "${winID}" | sed '1 p;d') ;;
     p) winID=$(lsw | grep -v "${winID}" | sed '$ p;d') ;;
     0x*) wattr "${winID}" || return 1 ;;
-    *) return 1 ;;
   esac
 
   #case $1 in
@@ -81,7 +80,9 @@ function focw(){
   #  *) usage ;;
   #esac
 
-  [ -z "${winID}" ] && { echo "focw: no window to focus" >&2; exit 1; }
+  [ -z "${winID}" ] && { echo "focw: no window to focus" >&2; return 1; }
+
+  #echo "[DEBUG]: ${winID}"
 
   chwso -r "${winID}"
   wtf "${winID}"
@@ -338,7 +339,10 @@ function grow(){
 
   for winID in "${winIDs[@]}"; do
     case "${grpAct}" in
-      '+'|'=') sed -i "s/$/${winID}\;/" "${grpFile}";;
+      '+'|'=')
+        [[ $(grep "${winID}" "${grpFile}") ]] && continue
+        sed -i "s/$/${winID}\;/" "${grpFile}"
+      ;;
       '-') sed -i "s/${winID}\;//" "${grpFile}";;
     esac
   done

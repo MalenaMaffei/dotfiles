@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 echo 'Reading ~/.xinitrc' > ~/.xinit.log
 
@@ -23,17 +23,8 @@ rm /tmp/.displays
 rm /tmp/.wallpaper
 
 echo 'Starting Window-Manager' >> ~/.xinit.log
-#exec startxfce4
-#exec i3 2>&1 >> ~/.xinit.log
-#exec budgie-desktop 2>&1 >> ~/.xinit.log
-#exec gnome-session --session=budgie-desktop --debug --disable-acceleration-check $*
-#~/.config/bspwm/bspwmrc 1> ~/.bspwm.out 2> ~/.bspwm.err
-
-# Enable theme changer
-#(sleep 5s && ~/.config/bspwm/change_theme 'y') &
 
 exec bspwm 1> ~/.bspwm.out 2> ~/.bspwm.err
 
 #~/dotfiles/wm/login &
-#~/dotfiles/wm/xwait 'panel' &
-#exec ~/dotfiles/wm/xwait 'xevents'
+#exec ~/dotfiles/wm/xblock
