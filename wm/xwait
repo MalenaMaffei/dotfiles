@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-[[ "${1}" =~ '^[0-9]+$' ]] && sleep "${1}" && shift
+re='^[0-9]+$'
+[[ "${1}" =~ ${re} ]] && sleep "${1}" && shift
 
 prog="${1}"; shift
 shortName=$(basename "${prog}")

@@ -44,9 +44,21 @@ function setupWindow(){
   [[ $(wattr o "${winID}") ]] && continue
   [[ $(pgrep 'bspwm') ]] && bspc node -t floating
   
+  winName=$(xprop -id "${winID}" WM_NAME | cut -d '"' -f 2)
+  winClass=$(xprop -id "${winID}" WM_CLASS | cut -d '"' -f 2)
+
+  [[ "${winName}" == 'bar' ]] && return
+  [[ "${winClass}" == 'dmenu' ]] && return
+
+  chwb -c "${color}" -s "${WIN_BORDER}" "${winID}"
+  [[ "${winClass}" == 'hedgewars' ]] && modw a "${winID}"; return
+  [[ "${winClass}" == 'hwengine' ]] && modw a "${winID}"; return
+
+  #return
+
   #wmp -a $(wattr xy "${winID}") # move the mouse cursor to
   #wmp -r "$((winW /2))" "$((winH /2))" # .. its bottom right corner
-  chwb -c "${color}" -s "${WIN_BORDER}" "${winID}"
+  
   snaw c "${winID}"
 
   #notify-send "${winID} <> $(pfw)"

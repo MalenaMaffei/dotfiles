@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-[[ ! $(pgrep 'sxhkd') ]             && (~/dotfiles/wm/xwait sxhkd -c ~/dotfiles/wm/hotkeys) &
-[[ ! $(pgrep 'dunst') ]]            && (~/dotfiles/wm/xwait dunst) &
-[[ ! $(pgrep 'compton') ]]          && (~/dotfiles/wm/xcheck compton -b --config ~/.config/compton/compton.conf) &
-[[ ! $(pgrep 'mpd') ]]              && (~/dotfiles/wm/xcheck mpd) &
+[[ ! $(pgrep 'sxhkd') ]] && (~/dotfiles/wm/xwait sxhkd -c ~/dotfiles/wm/hotkeys) &
+[[ ! $(pgrep 'dunst') ]] && (~/dotfiles/wm/xwait dunst) &
+[[ ! $(pgrep 'compton') ]] && (~/dotfiles/wm/xcheck compton -b --config ~/.config/compton/compton.conf) &
+[[ ! $(pgrep 'mpd') ]] && (~/dotfiles/wm/xcheck mpd) &
 #[[ ! $(pgrep 'gpg-agent') ]]        && gpg-connect-agent reloadagent /bye
-[[ ! $(pgrep -f 'wm/displays') ]]   && (~/dotfiles/wm/xwait ~/dotfiles/wm/displays) &
-[[ ! $(pgrep -f 'wm/wallpaper') ]]  && (~/dotfiles/wm/wallpaper) &
-[[ ! $(pgrep -f 'wm/panel') ]]      && (~/dotfiles/wm/xwait ~/dotfiles/wm/panel) &
+[[ ! $(pgrep -f 'wm/displays') ]] && (~/dotfiles/wm/xwait ~/dotfiles/wm/displays) &
+[[ ! $(pgrep -f 'wm/walpaper') ]] && (~/dotfiles/wm/wallpaper) &
+[[ ! $(pgrep -f 'wm/panl') ]] && (~/dotfiles/wm/xwait 2 ~/dotfiles/wm/panel) &
 
 notify-send -u 'low' 'User is logged in.'

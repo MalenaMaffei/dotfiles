@@ -24,7 +24,7 @@ rm /tmp/.wallpaper
 
 echo 'Starting Window-Manager' >> ~/.xinit.log
 
-exec bspwm 1> ~/.bspwm.out 2> ~/.bspwm.err
+#exec bspwm 1> ~/.bspwm.out 2> ~/.bspwm.err
 
-#~/dotfiles/wm/login &
-#exec ~/dotfiles/wm/xblock
+~/dotfiles/wm/login &
+exec ~/dotfiles/wm/xblock
