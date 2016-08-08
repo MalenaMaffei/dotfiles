@@ -39,12 +39,23 @@ super + shift + {Left,Right,Up,Down}
 super + shift + {y,x,d,f}
   modw {h,a,d,f} $(pfw)
 
+# tag w(indow) <tag> add(+)/delete(-)/toggle(~)/set(=) <WID> [.. <WID>]
+super + ctrl + {0-9}
+  tagw {0-9} ~ $(pfw)
+
+# p(erform) t(agged) w(indow) a(ction) <tag> <cmd>
+# Example: ptwa 0 killw
+super + {0-9}
+  ptwa {0-9} mapw -t
+#super + shift + {0-9}
+#  ptwa {0-9} killw
+
 # mo(dify) w(indow) s(tacking order) inc(+)/dec(-)/to(=)/f(ront)/b(ack) ? <WID> [.. <WID>]
 # Example: mows + 1 $(pfw)
-super + shift + {e,q}
-  mows {+,-} 1 $(pfw)
-super + shift + {pageUp,pageDown}
-  mows {f,b} $(pfw)
+#super + shift + {e,q}
+#  mows {+,-} 1 $(pfw)
+#super + shift + {pageUp,pageDown}
+#  mows {f,b} $(pfw)
 
 # sna(p) w(indow) t(op)/b(ottom)/l(eft)/r(ight)/t(op)l(eft)/t(op)r(ight)/b(ottom)l(eft)/b(ottom)r(ight)/c(enter) <WID> [.. <WID>]
 # Example: snaw tl $(pfw)
@@ -53,10 +64,10 @@ super + alt + {w,s,a,d,q,e,z,x,c}
 
 # gro(up) w(indow) <GID|all> add(+)/del(-)/set(=) <WID> [.. <WID>]
 # Example: grow 0 + $(pfw)
-super + ctrl + {0-9}
-  grow {0-9} + $(pfw)
-super + shift + {0-9}
-  grow {0-9} - $(pfw)
+#super + ctrl + {0-9}
+#  grow {0-9} + $(pfw)
+#super + shift + {0-9}
+#  grow {0-9} - $(pfw)
 
 # mod(ify) g(roup) <GID|all> s(how)/h(ide)/t(oggle)/c(lear)
 # Example: modg 0 s

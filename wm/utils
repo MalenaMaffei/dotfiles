@@ -7,11 +7,13 @@ wmTMP='/tmp/.wm'
 wmGroups="${wmTMP}/groups"
 wmWindows="${wmTMP}/windows"
 wmBackups="${wmTMP}/backups"
+wmTags="${wmTMP}/tags"
 wmWinFS="${wmBackups}/win.fs"
 
 [[ ! -d "${wmGroups}" ]] && mkdir -p "${wmGroups}"
 [[ ! -d "${wmWindows}" ]] && mkdir -p "${wmWindows}"
 [[ ! -d "${wmBackups}" ]] && mkdir -p "${wmBackups}"
+[[ ! -d "${wmTags}" ]] && mkdir -p "${wmTags}"
 [[ ! -f "${wmWinFS}" ]] && touch "${wmWinFS}"
 
 PAD_TOP="${PAD_TOP:-0}"
@@ -212,6 +214,60 @@ function resw(){
     wrs -a "${winW}" "${winH}" "${winID}"
     #echo "win ${winID} resize ${winW}x${winH}"
   done
+}
+
+# tag w(indow) <tag> add(+)/delete(-)/toggle(~)/set(=) <WID> [.. <WID>]
+function tagw(){
+  local tagName="${1}"
+  local tagAct="${2}"
+  shift; shift
+  local winIDs="${@}"
+  local tagFile="${wmTags}/${tagName}"
+
+  [[ ! -f "${tagFile}" ]] && touch "${tagFile}"
+  [[ "${tagAct}" == '=' ]] && echo -n '' > "${tagFile}"
+
+  for winID in "${winIDs[@]}"; do
+    if [[ "${tagAct}" == '~' ]]; then
+      if [[ $(grep "${winID}" "${tagFile}") ]]; then
+        tagAct='-'
+      else
+        tagAct="+"
+      fi
+    fi
+
+    case "${tagAct}" in
+      '+'|'=') sed -i "s/$/${winID}\;/" "${tagFile}";;
+      '-') sed -i "s/${winID}\;//" "${tagFile}";;
+    esac
+  done
+
+  # Remove empty tagfiles
+  [[ -s "${tagFile}" ]] && rm "${tagFile}"
+}
+
+# l(i)s(t) t(agged) w(indows) <tag>
+function lstw(){
+  local tagName="${1}"
+  local tagFile="${wmTags}/${tagName}"
+
+  [[ ! -f "${tagFile}" ]] && return
+  cat "${tagFile}" | tr ';' ' '
+}
+
+# p(erform) t(agged) w(indow) a(ction) <tag> <cmd>
+function ptwa(){
+  local tagName="${1}"
+  shift
+  local tagCmd="${@}"
+
+  lstw "${tagName}" | xargs ${tagCmd}
+}
+
+# l(i)s(t) w(indow) t(ags) <WID>
+function lswt(){
+  local winID="${1}"
+  grep -l "${wmTags}" "${winID}"
 }
 
 # mod(ify) w(indow) h(ide)/(m)a(ximize)/d(efault)/f(ullscreen) <WID> [.. <WID>]
