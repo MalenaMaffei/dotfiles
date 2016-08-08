@@ -7,14 +7,14 @@
 # --------------------------------------------------------
 
 # Kill window
-super + x
+super + Escape
   killw $(pfw)
   #kill $(xprop -id $(pfw) | grep PID | cut -b25-)
 
 # foc(us) w(indow) l(eft)/r(ight)/u(p)/d(own)/p(rev)/n(ext)
 # Example focw u
-super + {a,d,w,s,q,e}
-  focw {l,r,u,d,p,n}
+super + {a,d,w,s,q,e,z,x}
+  focw {l,r,u,d,p,n,b,e}
 
 # mov(e) w(indow) l(eft)/r(ight)/u(p)/d(own) inc(+)/dec(-)/to(=) ?px/?% <WID> [.. <WID>]
 # Example: movw d 5% $(pfw)
@@ -31,22 +31,22 @@ super + {Left,Right,Up,Down}
 # Example: resw w + 5% $(pfw)
 super + ctrl + {Left,Right,Up,Down}
   resw {l,r,u,d} + 10px $(pfw)
-super + shift + {Left,Right,Up,Down}
-  resw {l,r,u,d} - 10px $(pfw)
+#super + shift + {Left,Right,Up,Down}
+#  resw {l,r,u,d} - 10px $(pfw)
 
 # mod(ify) w(indow) h(ide)/(m)a(ximize)/d(efault)/f(ullscreen) <WID> [.. <WID>]
 # Example: modw a $(pfw)
 super + shift + {y,x,d,f}
   modw {h,a,d,f} $(pfw)
 
-# tag w(indow) <tag> add(+)/delete(-)/toggle(~)/set(=) <WID> [.. <WID>]
-super + ctrl + {0-9}
-  tagw {0-9} ~ $(pfw)
+# tag w(indow) <tag> add(+)/delete(-)/toggle(?)/set(=) <WID> [.. <WID>]
+super + ctrl + {1-9}
+  tagw {1-9} ? $(pfw)
 
 # p(erform) t(agged) w(indow) a(ction) <tag> <cmd>
 # Example: ptwa 0 killw
-super + {0-9}
-  ptwa {0-9} mapw -t
+super + {1-9}
+  ptwa {1-9} mapw -t
 #super + shift + {0-9}
 #  ptwa {0-9} killw
 
@@ -98,8 +98,8 @@ super + shift + {k,l,n,h,o}
   {lkur,lour,sdpc,hnpc,rbpc}
 
 # Reload bindings
-super + Delete + Escape
-   killall -USR1 sxhkd
+super + shift + comma
+  killall -USR1 sxhkd
    
 super + Return
   termite
@@ -154,8 +154,8 @@ ctrl + alt + x
   pkill -f 'x11grab'
 
 # screenshot
-{,ctrl +,shift +} @Print
-  ~/.config/bash/scripts/scrot {window,area}
+{_,ctrl +,shift +} @Print
+  ~/.config/bash/scripts/scrot {_,window,area}
 
 # change wallpaper and create theme from it
 #ctrl + shift + w

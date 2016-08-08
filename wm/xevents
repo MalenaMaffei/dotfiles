@@ -37,18 +37,30 @@
 
 eval "$(xres2var)"
 
+function checkWindow(){
+  local winName="${1}"
+  local winClass="${2}"
+  local winID="${3}"
+
+  [[ "${winName}" == 'bar' ]] && ignw -s "${winID}"; return 1
+  [[ "${winClass}" == 'dmenu' ]] && ignw -s "${winID}"; return 1
+  [[ "${winClass}" == 'Dunst' ]] && ignw -s "${winID}"; return 1
+}
+
 function setupWindow(){
   local winID="${1}"
   local color="0x$(echo "${base0A}" | tr -d '#')"
-
-  [[ $(wattr o "${winID}") ]] && continue
-  [[ $(pgrep 'bspwm') ]] && bspc node -t floating
   
   winName=$(xprop -id "${winID}" WM_NAME | cut -d '"' -f 2)
   winClass=$(xprop -id "${winID}" WM_CLASS | cut -d '"' -f 2)
 
-  [[ "${winName}" == 'bar' ]] && return
-  [[ "${winClass}" == 'dmenu' ]] && return
+  [[ ! $(checkWindow "${winName}" "${winClass}" "${winID}") ]] && return 1
+
+  # o: wattr returns 0 if the override_redirect 
+  #  attribute is set on the window
+  [[ $(wattr o "${winID}") ]] && return 1
+
+  [[ $(pgrep 'bspwm') ]] && bspc node -t floating
 
   chwb -c "${color}" -s "${WIN_BORDER}" "${winID}"
   [[ "${winClass}" == 'hedgewars' ]] && modw a "${winID}"; return
@@ -89,8 +101,8 @@ function main(){
   wew | while IFS=':' read eventID winID; do
     case ${eventID} in
       16) setupWindow "${winID}";;
-      19) mapWindow "${winID}";;
-      18) closeWindow "${winID}";;
+      #19) mapWindow "${winID}";;
+      #18) closeWindow "${winID}";;
     esac
   done
 }

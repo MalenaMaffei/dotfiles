@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+function killCmd(){
+  kill $(pgrep -f "${1}" -a | grep -v -E 'xwait|xcheck' | head -n 1 | cut -d ' ' -f 1)
+}
+
+scriptDir=$(dirname `realpath -P "$0"`)
+
+if [[ "${1}" != 'y' ]]; then
+  "${scriptDir}/wallpaper" "${1}"
+fi
+
+notify-send -u low "Changing theme."
+themeDir=$(cat /tmp/.wallpaper | img2thm | awk -F '"' '{print $4}' | tr -d '"')
+
+if [[ ! -d "${themeDir}" ]]; then
+  notify-send "Warning: Cannot change theme: Theme directory \"${themeDir}\" not found."
+  exit
+fi
+
+cp "${themeDir}/Xresources" ~/.Xresources
+cp "${themeDir}/termcolors" ~/.config/bash/colors
+#cp "${themeDir}/gtk.css" ~/.themes/Custom/gtk-3.0/gtk.css
+#cp "${themeDir}/settings.ini" ~/.config/gtk-3.0/settings.ini
+#cp "${themeDir}/theme.lua" ~/.config/luakit/theme.lua
+cp "${themeDir}/dunstrc" ~/.config/dunst/dunstrc
+
+# Overwrite system fonts
+font2sys
+
+# Extract colors
+eval "$(xres2var)"
+
+# Update panel
+killCmd 'wm/panel'
+killCmd 'dunst'
+
+thm2sys
+
+notify-send -u low "Theme changed."

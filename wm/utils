@@ -59,20 +59,24 @@ function rstw(){
   done
 }
 
-# foc(us) w(indow) l(eft)/r(ight)/u(p)/d(own)/p(rev)/n(ext) [<WID>]
+# foc(us) w(indow) l(eft)/r(ight)/u(p)/d(own)/p(rev)/n(ext)/b(egining)/e(nd) [<WID>]
 function focw(){
   local winID="${1}"
   local curID=$(pfw)
 
   #[[ "${winID}" == '' ]] && winID=$(pfw)
 
+  #notify-send "[focw]: act:${winID} - pfw:${curID}"
+
   case "${winID}" in
-    l) winID=$(lsw | xargs wattr xi | sort -nr | sed "0,/${curID}/d" | sed "1s/^[0-9]* //p;d");;
-    r) winID=$(lsw | xargs wattr yi | sort -n | sed "0,/${curID}/d" | sed "1s/^[0-9]* //p;d");;
-    u) winID=$(lsw | xargs wattr yi | sort -nr | sed "0,/${curID}/d" | sed "1s/^[0-9]* //p;d");;
-    d) winID=$(lsw | xargs wattr xi | sort -n | sed "0,/${curID}/d" | sed "1s/^[0-9]* //p;d");;
-    n) winID=$(lsw | grep -v "${curID}" | sed '1 p;d');;
-    p) winID=$(lsw | grep -v "${curID}" | sed '$ p;d');;
+    b) winID=$(lsw | head -n 1);;
+    e) winID=$(lsw | tail -n 1);;
+    l) winID=$(lsw | xargs wattr xi | sort -nr | sed "0,/${curID:-X}/d" | sed "1s/^[0-9]* //p;d");;
+    r) winID=$(lsw | xargs wattr yi | sort -n | sed "0,/${curID:-X}/d" | sed "1s/^[0-9]* //p;d");;
+    u) winID=$(lsw | xargs wattr yi | sort -nr | sed "0,/${curID:-X}/d" | sed "1s/^[0-9]* //p;d");;
+    d) winID=$(lsw | xargs wattr xi | sort -n | sed "0,/${curID:-X}/d" | sed "1s/^[0-9]* //p;d");;
+    n) winID=$(lsw | grep -v "${curID:-X}" | sed '1 p;d');;
+    p) winID=$(lsw | grep -v "${curID:-X}" | sed '$ p;d');;
     0x*) wattr "${winID}" || return 1;;
   esac
 
@@ -84,8 +88,6 @@ function focw(){
   #esac
 
   [ -z "${winID}" ] && { echo "focw: no window to focus" >&2; return 1; }
-
-  #echo "[DEBUG]: ${winID}"
 
   chwso -r "${winID}"
   wtf "${winID}"
@@ -216,7 +218,7 @@ function resw(){
   done
 }
 
-# tag w(indow) <tag> add(+)/delete(-)/toggle(~)/set(=) <WID> [.. <WID>]
+# tag w(indow) <tag> add(+)/delete(-)/toggle(~)/set(=)/toggle(?) <WID> [.. <WID>]
 function tagw(){
   local tagName="${1}"
   local tagAct="${2}"
@@ -227,23 +229,25 @@ function tagw(){
   [[ ! -f "${tagFile}" ]] && touch "${tagFile}"
   [[ "${tagAct}" == '=' ]] && echo -n '' > "${tagFile}"
 
+  #notify-send "ACTION: ${tagAct} for ${winIDs}"
   for winID in "${winIDs[@]}"; do
-    if [[ "${tagAct}" == '~' ]]; then
+    winAct="${tagAct}"
+    if [[ "${winAct}" == '?' ]]; then
       if [[ $(grep "${winID}" "${tagFile}") ]]; then
-        tagAct='-'
+        winAct='-'
       else
-        tagAct="+"
+        winAct="+"
       fi
     fi
 
-    case "${tagAct}" in
-      '+'|'=') sed -i "s/$/${winID}\;/" "${tagFile}";;
+    case "${winAct}" in
+      '+'|'=') echo -n "${winID};" >> "${tagFile}";;
       '-') sed -i "s/${winID}\;//" "${tagFile}";;
     esac
   done
 
   # Remove empty tagfiles
-  [[ -s "${tagFile}" ]] && rm "${tagFile}"
+  [[ ! -s "${tagFile}" ]] && rm "${tagFile}"
 }
 
 # l(i)s(t) t(agged) w(indows) <tag>
@@ -260,14 +264,16 @@ function ptwa(){
   local tagName="${1}"
   shift
   local tagCmd="${@}"
-
+  
   lstw "${tagName}" | xargs ${tagCmd}
+  #notify-send "DEBUG: Running ${tagCmd} for #${tagName}"
+  #notify-send "RESULT: ${result}"
 }
 
 # l(i)s(t) w(indow) t(ags) <WID>
 function lswt(){
   local winID="${1}"
-  grep -l "${wmTags}" "${winID}"
+  grep -l "${winID}" "${wmTags}"/*
 }
 
 # mod(ify) w(indow) h(ide)/(m)a(ximize)/d(efault)/f(ullscreen) <WID> [.. <WID>]
@@ -451,4 +457,4 @@ function chwl(){
   return
 }
 
-export -f bkpw rstw focw movw telw resw modw mows snaw bkpg grow modg chwl
+export -f bkpw rstw focw movw telw resw tagw lstw lswt ptwa modw mows snaw bkpg grow modg chwl
