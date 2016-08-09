@@ -8,7 +8,7 @@
 
 # Kill window
 super + Escape
-  killw $(pfw)
+  killwa $(pfw)
   #kill $(xprop -id $(pfw) | grep PID | cut -b25-)
 
 # foc(us) w(indow) l(eft)/r(ight)/u(p)/d(own)/p(rev)/n(ext)
@@ -47,8 +47,9 @@ super + ctrl + {1-9}
 # Example: ptwa 0 killw
 super + {1-9}
   ptwa {1-9} mapw -t
-#super + shift + {0-9}
-#  ptwa {0-9} killw
+super + shift + {1-9}
+  ptwa {1-9} killw; \
+  tagc {1-9}
 
 # mo(dify) w(indow) s(tacking order) inc(+)/dec(-)/to(=)/f(ront)/b(ack) ? <WID> [.. <WID>]
 # Example: mows + 1 $(pfw)
@@ -99,7 +100,8 @@ super + shift + {k,l,n,h,o}
 
 # Reload bindings
 super + shift + comma
-  killall -USR1 sxhkd
+  killall -USR1 sxhkd; \
+  notify-send 'Restarted "sxhkd".'
    
 super + Return
   termite

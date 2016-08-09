@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+source "${scriptDir}/config"
+
+# b(ac)k(u)p w(indow) <WID> [.. <WID>]
+function main(){
+  for winID in "${@}"; do
+    local winX=$(wattr x "${winID}")
+    local winY=$(wattr y "${winID}")
+    local winW=$(wattr w "${winID}")
+    local winH=$(wattr h "${winID}")
+    local winB=$(wattr b "${winID}")
+    local bakFile="${wmBackups}/win.${winID}"
+
+    [[ -f "${bakFile}" ]] && continue
+
+    echo "${winX};${winY};${winW};${winH};${winB}" > "${bakFile}"
+  done
+}
+
+main ${@}

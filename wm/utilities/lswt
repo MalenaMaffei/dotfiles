@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+source "${scriptDir}/config"
+
+# l(i)s(t) w(indow) t(ags) <WID>
+function main(){
+  local winID="${1}"
+  grep -l "${winID}" "${wmTags}"/*
+}
+
+main ${@}

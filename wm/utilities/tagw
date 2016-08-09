@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+source "${scriptDir}/config"
+
+# tag w(indow) <tag> add(+)/delete(-)/toggle(~)/set(=)/toggle(?) <WID> [.. <WID>]
+function main(){
+  local tagName="${1}"
+  local tagAct="${2}"
+  shift; shift
+  local winIDs="${@}"
+  local tagFile="${wmTags}/${tagName}"
+
+  [[ ! -f "${tagFile}" ]] && touch "${tagFile}"
+  [[ "${tagAct}" == '=' ]] && echo -n '' > "${tagFile}"
+
+  #notify-send "ACTION: ${tagAct} for ${winIDs}"
+  for winID in "${winIDs[@]}"; do
+    # Skip non-existing windows
+    [[ $(wattr "${winID}") ]] && continue
+    winAct="${tagAct}"
+    if [[ "${winAct}" == '?' ]]; then
+      if [[ $(grep "${winID}" "${tagFile}") ]]; then
+        winAct='-'
+      else
+        winAct="+"
+      fi
+    fi
+
+    case "${winAct}" in
+      '+'|'=') echo -n "${winID};" >> "${tagFile}";;
+      '-') sed -i "s/${winID}\;//" "${tagFile}";;
+    esac
+  done
+
+  # Remove empty tagfiles
+  [[ ! -s "${tagFile}" ]] && rm "${tagFile}"
+}
+
+main ${@}

@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+source "${scriptDir}/config"
+
+# mo(dify) w(indow) s(tacking order) inc(+)/dec(-)/to(=)/f(ront)/b(ack) ? <WID> [.. <WID>]
+function main(){
+  return
+}
+
+main ${@}

@@ -18,42 +18,20 @@ SYMBOL_DISCHARGING=""
 
 #bspc config top_padding "${PANEL_HEIGHT}"
 
-function get_workspaces(){
+function get_tags(){
   local workSpaces=$(bspc wm -g)
-  for i in `seq 2 11`; do
-    # query bspc control for the status of the workspaces
-    local ws=$(echo "${workSpaces}" | cut -d ":" -f ${i})
-    local wsName=$(echo "${ws}" | cut -c 2-)
-    # check for urgency
-    if [[ "${ws}" == *u* ]]; then
-      #echo -n "%{F${COLOR_URGENT}}${SYMBOL_WORKSPACE_URGENT} "
-      echo -n "%{F${COLOR_URGENT}}%{U${COLOR_URGENT}}${wsName}%{U-}%{F-} "
-    # check for focused workspace
-    elif [[ "${ws}" == *O* || "${ws}" == *F* ]]; then
-      #echo -n "%{F${COLOR_ACTIVE}}${SYMBOL_WORKSPACE_ACTIVE} "
-      echo -n "%{F${COLOR_ACTIVE}}${wsName}%{F-} "
-    # unfocused, non-free desktop color
-    elif [[ "${ws}" == *o* ]]; then
-      #echo -n "%{F${COLOR_INACTIVE}}${SYMBOL_WORKSPACE_NORMAL} "
-      echo -n "%{F${COLOR_INACTIVE}}${wsName}%{F-} "
-    # free desktop color
-    else
-      #echo -n "%{F${COLOR_INACTIVE}}${SYMBOL_WORKSPACE_NORMAL} "
-      echo -n "%{F${COLOR_INACTIVE}}${wsName}%{F-} "
-    fi
-    #echo -ne "${ws:1} " # print workspaces to conky
-  done
+  cd '/tmp/.wm/tags'
+  for tagName in *; do
+    #local tagState=$(head -c 1 "${tagName}")
 
-  # for i in `seq 1 10`; do
-  #   if [[ ${urgentWS} -eq ${i} ]]; then
-  #     echo -n "%{F${COLOR_URGENT}}${SYMBOL_WORKSPACE_URGENT} "
-  #   elif [[ ${activeWS} -ne ${i} ]]; then 
-  #     echo -n "%{F${COLOR_INACTIVE}}${SYMBOL_WORKSPACE_NORMAL} "
-  #   else
-  #     echo -n "%{F${COLOR_ACTIVE}}${SYMBOL_WORKSPACE_ACTIVE} "
-  #   fi
-  #   echo -n "%{F-}"
-  # done
+    #if [[ "${tagState}" == 's' ]]; then
+      echo -n "%{F${COLOR_ACTIVE}}"
+    #else
+    #  echo -n "%{F${COLOR_INACTIVE}}"
+    #fi
+    echo -n "${tagName} "
+    echo -n "%{F-}"
+  done
 }
 
 function get_power(){
@@ -170,7 +148,7 @@ function get_title(){
 (sleep 2 && xdo above -t $(xdo id -n root) $(xdo id -a bar)) &
 
 while [[ 1 ]]; do
-  echo -n "%{l}"
+  echo -n "%{l} $(get_tags)"
   echo -n "%{c}$(get_title)"
   #echo -n "%{r}$(get_power) | $(get_packages) | $(get_microphone) | $(get_bluetooth) | $(get_network) | $(get_volume) "
   echo -n "%{r}$(get_power) | $(get_network) | $(get_volume) | %{F${COLOR_ACTIVE}} $(date +%X) "

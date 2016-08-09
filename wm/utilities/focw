@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+source "${scriptDir}/config"
+
+# foc(us) w(indow) l(eft)/r(ight)/u(p)/d(own)/p(rev)/n(ext)/b(egining)/e(nd) [<WID>]
+function main(){
+  local winID="${1}"
+  local curID=$(pfw)
+
+  #[[ "${winID}" == '' ]] && winID=$(pfw)
+
+  #notify-send "[focw]: act:${winID} - pfw:${curID}"
+
+  case "${winID}" in
+    b) winID=$(lsw | head -n 1);;
+    e) winID=$(lsw | tail -n 1);;
+    l) winID=$(lsw | xargs wattr xi | sort -nr | sed "0,/${curID:-X}/d" | sed "1s/^[0-9]* //p;d");;
+    r) winID=$(lsw | xargs wattr yi | sort -n | sed "0,/${curID:-X}/d" | sed "1s/^[0-9]* //p;d");;
+    u) winID=$(lsw | xargs wattr yi | sort -nr | sed "0,/${curID:-X}/d" | sed "1s/^[0-9]* //p;d");;
+    d) winID=$(lsw | xargs wattr xi | sort -n | sed "0,/${curID:-X}/d" | sed "1s/^[0-9]* //p;d");;
+    n) winID=$(lsw | grep -v "${curID:-X}" | sed '1 p;d');;
+    p) winID=$(lsw | grep -v "${curID:-X}" | sed '$ p;d');;
+    0x*) wattr "${winID}" || return 1;;
+  esac
+
+  #case $1 in
+  #  next) wid=$(lsw|grep -v $CUR|sed '1 p;d') ;;
+  #  prev) wid=$(lsw|grep -v $CUR|sed '$ p;d') ;;
+  #  0x*) wattr $1 && wid=$1 ;;
+  #  *) usage ;;
+  #esac
+
+  [ -z "${winID}" ] && { echo "focw: no window to focus" >&2; return 1; }
+
+  chwso -r "${winID}"
+  wtf "${winID}"
+  #setb active $wid
+  #setb inactive $CUR
+
+  #[[ "${newID}" != '' ]] && wtf "${newID}"
+}
+
+main ${@}

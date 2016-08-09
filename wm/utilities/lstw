@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+source "${scriptDir}/config"
+
+# l(i)s(t) t(agged) w(indows) <tag>
+function main(){
+  local tagName="${1}"
+  local tagFile="${wmTags}/${tagName}"
+
+  [[ ! -f "${tagFile}" ]] && return
+  cat "${tagFile}" | tr ';' ' '
+}
+
+main ${@}

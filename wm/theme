@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 
 function killCmd(){
-  kill $(pgrep -f "${1}" -a | grep -v -E 'xwait|xcheck' | head -n 1 | cut -d ' ' -f 1)
+  #kill $(pgrep -f "${1}" -a | grep -v -E 'xwait|xcheck' | head -n 1 | cut -d ' ' -f 1)
+  local pids=$(pgrep -f "${1}" -a | grep -v -E 'xwait|xcheck' | cut -d ' ' -f 1 | tr '\n' ' ')
+  
+  [[ "${pids}" == '' ]] && return
+  kill ${pids}
 }
 
 scriptDir=$(dirname `realpath -P "$0"`)
 
-if [[ "${1}" != 'y' ]]; then
+if [[ "${1}" != 'n' ]]; then
   "${scriptDir}/wallpaper" "${1}"
 fi
 

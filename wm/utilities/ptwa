@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+source "${scriptDir}/config"
+
+# p(erform) t(agged) w(indow) a(ction) <tag> <cmd>
+function main(){
+  local tagName="${1}"
+  shift
+  local tagCmd="${@}"
+  
+  lstw "${tagName}" | xargs ${tagCmd}
+  #notify-send "DEBUG: Running ${tagCmd} for #${tagName}"
+  #notify-send "RESULT: ${result}"
+}
+
+main ${@}

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+wmTMP='/tmp/.wm'
+
+wmGroups="${wmTMP}/groups"
+wmWindows="${wmTMP}/windows"
+wmBackups="${wmTMP}/backups"
+wmTags="${wmTMP}/tags"
+wmWinFS="${wmBackups}/win.fs"
+
+[[ ! -d "${wmGroups}" ]] && mkdir -p "${wmGroups}"
+[[ ! -d "${wmWindows}" ]] && mkdir -p "${wmWindows}"
+[[ ! -d "${wmBackups}" ]] && mkdir -p "${wmBackups}"
+[[ ! -d "${wmTags}" ]] && mkdir -p "${wmTags}"
+[[ ! -f "${wmWinFS}" ]] && touch "${wmWinFS}"
+
+PAD_TOP="${PAD_TOP:-0}"
+PAD_BOT="${PAD_BOT:-0}"
+PAD_LEFT="${PAD_LEFT:-0}"
+PAD_RIGHT="${PAD_RIGHT:-0}"
+WIN_BORDER="${WIN_BORDER:-0}"

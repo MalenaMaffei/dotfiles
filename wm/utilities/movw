@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+source "${scriptDir}/config"
+
+# mov(e) w(indow) l(eft)/r(ight)/u(p)/d(own) inc(+)/dec(-)/to(=) ?px/?% <WID> [.. <WID>]
+function main(){
+  local moveDir=${1} # l|r|u|d
+  local moveMod=${2} # +|-|=
+  local moveVal=${3} # ?px|?%
+  shift; shift; shift # clear above args
+  local winIDs="${@}" # other args should be windows
+
+  local rootWin=$(lsw -r)
+  local rootW=$(wattr w "${rootWin}")
+  local rootH=$(wattr h "${rootWin}")
+
+  local rootW=$((rootW - PAD_LEFT - PAD_RIGHT))
+  local rootH=$((rootH - PAD_TOP - PAD_BOT))
+
+  # if value is in percentage, calculate it now
+  if [[ "${moveVal}" == *% ]]; then
+    moveVal=$(echo "${moveVal}" | tr -d '%')
+    if [[ "${moveDir}" == 'l' || "${moveDir}" == 'r' ]]; then
+      moveVal=$(echo "scale=0; ${rootW}/100*${moveVal}" | bc -s)
+    else
+      moveVal=$(echo "scale=0; ${rootH}/100*${moveVal}" | bc -s)
+    fi
+  fi
+
+  # if value has pixel suffix, remove it
+  [[ "${moveVal}" == *px ]] && moveVal=$(echo "${moveVal}" | tr -d 'px')
+
+  for winID in "${winIDs[@]}"; do
+    local winX=$(wattr x "${winID}")
+    local winY=$(wattr y "${winID}")
+    local winW=$(wattr w "${winID}")
+    local winH=$(wattr h "${winID}")
+
+    if [[ "${moveDir}" == 'l' && "${moveMod}" == '-' ]] || [[ "${moveDir}" == 'r' && "${moveMod}" == '+' ]]; then
+      wmv "${moveVal}" 0 "${winID}"
+    elif [[ "${moveDir}" == 'l' && "${moveMod}" == '+' ]] || [[ "${moveDir}" == 'r' && "${moveMod}" == '-' ]]; then
+      wmv "$((0 - moveVal))" 0 "${winID}"
+    elif [[ "${moveDir}" == 'l' && "${moveMod}" == '=' ]]; then
+      wtp "$((PAD_LEFT + moveVal))" "${winY}" "${winW}" "${winH}" "${winID}"
+    elif [[ "${moveDir}" == 'r' && "${moveMod}" == '=' ]]; then
+      wtp "$((rootW - winW - moveVal - PAD_RIGHT))" "${winY}" "${winW}" "${winH}" "${winID}"
+    elif [[ "${moveDir}" == 'u' && "${moveMod}" == '-' ]] || [[ "${moveDir}" == 'd' && "${moveMod}" == '+' ]]; then
+      wmv 0 "${moveVal}" "${winID}"
+    elif [[ "${moveDir}" == 'u' && "${moveMod}" == '+' ]] || [[ "${moveDir}" == 'd' && "${moveMod}" == '-' ]]; then
+      wmv 0 "$((0 - moveVal))" "${winID}"
+    elif [[ "${moveDir}" == 'u' && "${moveMod}" == '=' ]]; then
+      wtp "${winX}" "$((PAD_TOP + moveVal))" "${winW}" "${winH}" "${winID}"
+    elif [[ "${moveDir}" == 'd' && "${moveMod}" == '=' ]]; then
+      wtp "${winX}" "$((rootH - winH - moveVal - PAD_BOT))" "${winW}" "${winH}" "${winID}"
+    fi
+  done
+}
+
+main ${@}

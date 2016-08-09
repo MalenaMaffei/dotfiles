@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+source "${scriptDir}/config"
+
+function main(){
+  local tagName="${1}"
+  local tagFile="${wmTags}/${tagName}"
+
+  [[ -f "${tagFile}" ]] && rm "${tagFile}"
+}
+
+main ${@}

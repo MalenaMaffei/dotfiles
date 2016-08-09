@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+source "${scriptDir}/config"
+
+# mod(ify) w(indow) h(ide)/(m)a(ximize)/d(efault)/f(ullscreen) <WID> [.. <WID>]
+function main(){
+  local winAct=${1}
+  shift
+  local winIDs="${@}"
+
+  for winID in "${winIDs[@]}"; do
+    case "${winAct}" in
+      'h')
+        bkpw "${winID}"
+        mapw -u "${winID}"
+      ;;
+      'd')
+        rstw "${winID}"
+        mapw -m "${winID}"
+      ;;
+      'a')
+        local rootWin=$(lsw -r)
+        local rootW=$(wattr w "${rootWin}")
+        local rootH=$(wattr h "${rootWin}")
+
+        local rootW=$((rootW - PAD_LEFT - PAD_RIGHT - (2 * WIN_BORDER)))
+        local rootH=$((rootH - PAD_TOP - PAD_BOT - (2 * WIN_BORDER)))
+
+        bkpw "${winID}"
+        mapw -m "${winID}"
+        wtp "${PAD_LEFT}" "${PAD_TOP}" "${rootW}" "${rootH}" "${winID}"
+      ;;
+      'f')
+        if [[ -f "${wmWinFS}" ]]; then
+          rstw $(cat "${wmWinFS}")
+        fi
+
+        bkpw "${winID}"
+        mapw -m "${winID}"
+        wtp $(wattr xywh `lsw -r`) "${winID}"
+
+        echo "${winID}" > "${wmWinFS}"
+      ;;
+    esac
+  done
+
+  return
+}
+
+main ${@}

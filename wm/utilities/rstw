@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+source "${scriptDir}/config"
+
+# r(e)st(ore) w(indow) <WID> [.. <WID>]
+function main(){
+  for winID in "${@}"; do
+    local bakFile="${wmBackups}/win.${winID}"
+
+    [[ ! -f "${bakFile}" ]] && continue
+
+    local winProp=$(cat "${bakFile}")
+    local winX=$(echo "${winProp}" | cut -d ';' -f 1)
+    local winY=$(echo "${winProp}" | cut -d ';' -f 2)
+    local winW=$(echo "${winProp}" | cut -d ';' -f 3)
+    local winH=$(echo "${winProp}" | cut -d ';' -f 4)
+    local winB=$(echo "${winProp}" | cut -d ';' -f 5)
+
+    wtp "${winX}" "${winY}" "${winW}" "${winH}" "${winID}" # Teleport window
+    mapw -m "${winID}" # Show window
+
+    rm "${bakFile}"
+  done
+}
+
+main ${@}

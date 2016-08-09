@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+source "${scriptDir}/config"
+
+# res(ize) w(indow) l(eft)/r(ight)/u(p)/d(own)/h(eight)/w(idth) inc(+)/dec(-)/to(=) ?px/?% <WID> [.. <WID>]
+function main(){
+  local resDir=${1} # l|r|u|d
+  local resMod=${2} # +|-|=
+  local resVal=${3} # ?px|?%
+  shift; shift; shift # clear above args
+  local winIDs="${@}" # other args should be windows
+
+  # if value is in percentage, calculate it now
+  if [[ "${resVal}" == *% ]]; then
+    resVal=$(echo "${resVal}" | tr -d '%')
+    local rootWin=$(lsw -r)
+    local rootW=$(wattr w "${rootWin}")
+    local rootH=$(wattr h "${rootWin}")
+
+    local rootW=$((rootW - PAD_LEFT - PAD_RIGHT))
+    local rootH=$((rootH - PAD_TOP - PAD_BOT))
+
+    if [[ "${resDir}" == 'l' || "${resDir}" == 'r' || "${resDir}" == 'w' ]]; then
+      resVal=$(echo "scale=0; ${rootW}/100*${resVal}" | bc -s)
+    else
+      resVal=$(echo "scale=0; ${rootH}/100*${resVal}" | bc -s)
+    fi
+  fi
+
+  # if value has pixel suffix, reres it
+  [[ "${resVal}" == *px ]] && resVal=$(echo "${resVal}" | tr -d 'px')
+
+  for winID in "${winIDs[@]}"; do
+    local winW=$(wattr w "${winID}")
+    local winH=$(wattr h "${winID}")
+
+    #echo "win ${winID} size ${winW}x${winH}"
+
+    if [[ "${resDir}" == 'l' && "${resMod}" == '+' ]] || [[ "${resDir}" == 'r' && "${resMod}" == '-' ]]; then
+      winW=$((winW - resVal))
+    elif [[ "${resDir}" == 'l' && "${resMod}" == '-' ]] || [[ "${resDir}" == 'r' && "${resMod}" == '+' ]]; then
+      winW=$((winW + resVal))
+    elif [[ "${resDir}" == 'w' && "${resMod}" == '=' ]]; then
+      winW=$((resVal))
+    elif [[ "${resDir}" == 'u' && "${resMod}" == '+' ]] || [[ "${resDir}" == 'd' && "${resMod}" == '-' ]]; then
+      winH=$((winH - resVal))
+    elif [[ "${resDir}" == 'u' && "${resMod}" == '-' ]] || [[ "${resDir}" == 'd' && "${resMod}" == '+' ]]; then
+      winH=$((winH + resVal))
+    elif [[ "${resDir}" == 'h' && "${resMod}" == '=' ]]; then
+      winH=$((resVal))
+    fi
+    wrs -a "${winW}" "${winH}" "${winID}"
+    #echo "win ${winID} resize ${winW}x${winH}"
+  done
+}
+
+main ${@}

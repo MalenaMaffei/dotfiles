@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+source "${scriptDir}/config"
+
+# tel(eport) w(indow) <x> <y> <WID> [.. <WID>]
+function main(){
+  local newX=${1}
+  local newY=${2}
+  shift; shift
+  local winIDS="${@}"
+
+  for winID in "${winIDs[@]}"; do
+    local winW=$(wattr w "${winID}")
+    local winH=$(wattr h "${winID}")
+
+    wtp "${newX}" "${newY}" "${winW}" "${winH}" "${winID}"
+  done
+}
+
+main ${@}

@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+
+# b(ac)k(u)p g(roup) <GID> [.. <GID>]
+function bkpg(){
+  for grpID in "${@}"; do
+    local grpFile="${wmGroups}/${grpID}"
+    local bakFile="${wmBackups}/grp.${grpID}"
+
+    [[ ! -f "${grpFile}" ]] && continue
+
+    cat "${grpFile}" > "${bakFile}"
+  done
+}
+
+# r(e)st(ore) g(roup) <GID> [.. <GID>]
+function rstg(){
+  for grpID in "${@}"; do
+    local grpFile="${wmGroups}/${grpID}"
+    local bakFile="${wmBackups}/grp.${grpID}"
+
+    [[ ! -f "${bakFile}" ]] && continue
+
+    cat "${bakFile}" > "${grpFile}"
+    local grpState=$(cat "${grpFile}" | cut -d ';' -f 1)
+    local winIDs=$(cat "${grpFile}" | cut -d ';' -f 2+)
+
+    for winID in "${winIDs}"; do
+      case "${grpState}" in
+        's') mapw -m "${winID}";;
+        'h') mapw -u "${winID}";;
+      esac
+    done
+  done
+}
+
+# gro(up) w(indow) <GID> add(+)/del(-)/set(=) <WID> [.. <WID>]
+function grow(){
+  local grpID=${1}
+  local grpAct=${2}
+  shift; shift
+  local winIDs="${@}"
+  local grpFile="${wmGroups}/${grpID}"
+
+  if [[ ! -f "${grpFile}" ]]; then
+    echo "s;" >> "${grpFile}"
+  fi
+
+  for winID in "${winIDs[@]}"; do
+    case "${grpAct}" in
+      '+'|'=')
+        [[ $(grep "${winID}" "${grpFile}") ]] && continue
+        sed -i "s/$/${winID}\;/" "${grpFile}"
+      ;;
+      '-') sed -i "s/${winID}\;//" "${grpFile}";;
+    esac
+  done
+}
+
+# mod(ify) g(roup) <GID> s(how)/h(ide)/t(oggle)/c(lear)
+function modg(){
+  local grpID=${1}
+  local grpAct=${2}
+  local grpFile="${wmGroups}/${grpID}"
+
+  if [[ ! -f "${grpFile}" ]]; then
+    return 1
+  fi
+
+  local winIDs=$(cat "${grpFile}" | cut -d ';' -f 2+)
+
+  case "${grpAct}" in
+    's')
+      sed -i "s/\^h/s/" "${grpFile}"
+      local newMod='s'
+    ;;
+    'h')
+      sed -i "s/\^s/h/" "${grpFile}"
+      local newMod='h'
+    ;;
+    't')
+      if [[ $(cat "${grpFile}" | cut -d ';' -f 1) == 's' ]]; then
+        sed -i "s/\^s/h/" "${grpFile}"
+        local newMod='h'
+      else
+        sed -i "s/\^h/s/" "${grpFile}"
+        local newMod='s'
+      fi
+    ;;
+    'c') rm "${grpFile}"
+  esac
+
+  for winID in "${winIDs[@]}"; do
+    case "${newMod}" in
+      's') rstw "${winID}";;
+      'h') modw h "${winID}";;
+    esac
+  done
+}
+
+# ch(ange) w(indow) l(ayout) t(ile)/f(loating)/m(onocycle)
+function chwl(){
+  return
+}
+
+export -f bkpg grow modg chwl
