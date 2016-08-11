@@ -1,0 +1,26 @@
+stwf = set window focus
+-k Keyboard Focus
+-m Mouse Focus
+-w Window(s)
+-d Debug (cli|popup)
+
+fndw = find windows
+-p Positional (up|down|left|right)
+-h Historical (first|last|previous|next)
+-t Tagged
+-s State (visible|hidden|focused|unfocused)
+-o Only <WID> [.. <WID>]
+-e Except <WID> [.. <WID>]
+-d Debug (cli|popup)
+
+tagw = tag windows
+-a Action (add|delete|toggle|set|clear)
+-t Tag(s)
+-w Window(s)
+-d Debug (cli|popup)
+
+fxfw = find and execute for windows
+* Options (see fndw)
+-c Command
+-d Debug (cli|popup)
+
