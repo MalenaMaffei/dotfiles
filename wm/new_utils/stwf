@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+scriptName=$(basename $0)
+source "${scriptDir}/config"
+
+function usage(){
+  cat <<EOF
+  ${scriptName} <WID>
+
+  Set window focus
+EOF
+  exit 1
+}
+
+function main(){
+  local winID="${1}"
+
+  [[ "$#" -eq 0 ]] && >&2 usage
+
+  wattr "${winID}"
+  if [[ $? -eq 1 ]]; then
+    1>&2 echo "Error: Window \"${winID}\" does not exist."
+    return 1
+  fi
+
+  local winW=$(wattr w "${winID}")
+  local winH=$(wattr h "${winID}")
+
+  chwso -r "${winID}" # Put window on top
+  wtf "${winID}" # Set keyboard focus
+  wmp -a $(wattr xy "${winID}") # move the mouse cursor to
+  wmp -r "$((winW /2))" "$((winH /2))" # .. its center
+
+  eval "$(xres2var)"
+  local focCol="0xFF$(echo "${base0F}" | tr -d '#')"
+  local othCol="0xFF$(echo "${base01}" | tr -d '#')"
+  chwb -c "${focCol}" -s "${WIN_BORDER}" "${winID}"
+  chwb -c "${othCol}" -s "${WIN_BORDER}" $(lsw | grep -v "${winID}")
+}
+
+main "${@}"

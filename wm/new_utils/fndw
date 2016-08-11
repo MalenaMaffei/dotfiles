@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+scriptName=$(basename $0)
+source "${scriptDir}/config"
+
+function usage(){
+cat <<EOF
+  ${scriptName} <options>
+
+  Find windows
+
+    -d  debug     [c]li, [p]opup
+    -e  except    <WID> [.. <WID>]
+    -f  focus     <WID>
+    -h  history   [f]irst, [l]ast, [p]revious, [n]ext
+    -o  only      <WID> [.. <WID>]
+    -p  position  [u]p, [d]own, [l]eft, [r]ight
+    -s  state     [v]isible, [h]idden, [f]ocused, [u]nfocused
+    -t  tagged    <TAG> [.. <TAG>]
+EOF
+  exit 1
+}
+
+function main(){
+  local OPTIND
+
+  local posCond=''
+  local histCond=''
+  local tagCond=''
+  local stateCond=''
+  local onlyCond=''
+  local exceptCond=''
+
+  local debug=0
+
+  while getopts "d:e:f:h:o:p:s:t:" opt; do
+    case $opt in
+      d) debug="${OPTARG}";;
+      f) focID="${OPTARG}";;
+      e) exceptCond="${OPTARG}";;
+      h) histCond="${OPTARG}";;
+      o) onlyCond="${OPTARG}";;
+      p) posCond="${OPTARG}";;
+      s) stateCond="${OPTARG}";;
+      t) tagCond="${OPTARG}";;
+      ?) >&2 usage;;
+    esac
+  done
+
+  exceptCond=$(echo "${exceptCond}" | tr ' ' '\|')
+  onlyCond=$(echo "${onlyCond}" | tr ' ' '\|')
+
+  local winIDs=$(lsw)
+  [[ "${focID}" ]] || focID=$(pfw)
+
+  wattr "${focID}"
+  if [[ $? -eq 1 ]]; then
+    1>&2 echo "Error: Window \"${focID}\" does not exist."
+    return 1
+  fi
+
+  [[ "${histCond}" && "${onlyCond}" ]] && onlyCond+="\|${focID}"
+
+  #echo "${focID}"
+  #echo "==============================="
+  #echo "${winIDs}"
+  #echo "==============================="
+
+  [[ "${exceptCond}" ]] && winIDs=$(echo "${winIDs}" | grep -v -E "${exceptCond}")
+  [[ "${onlyCond}" ]] && winIDs=$(echo "${winIDs}" | grep -E "${onlyCond}")
+
+  case "${histCond}" in
+    f|first)    winIDs=$(echo "${winIDs}" | head -n 1);;
+    l|last)     winIDs=$(echo "${winIDs}" | tail -n 1);;
+    p|previous) winIDs=$(echo "${winIDs}" | grep -v "${focID:-NONE}" | sed '$ p;d');;
+    n|next)     winIDs=$(echo "${winIDs}" | grep -v "${focID:-NONE}" | sed '1 p;d');;
+  esac
+
+  case "${posCond}" in
+    l|left)     winIDs=$(echo "${winIDs}" | xargs wattr xi | sort -nr | sed "0,/${focID:-NONE}/d" | sed "1s/^[0-9]* //p;d");;
+    r|right)    winIDs=$(echo "${winIDs}" | xargs wattr yi | sort -n | sed "0,/${focID:-NONE}/d" | sed "1s/^[0-9]* //p;d");;
+    u|up)       winIDs=$(echo "${winIDs}" | xargs wattr yi | sort -nr | sed "0,/${focID:-NONE}/d" | sed "1s/^[0-9]* //p;d");;
+    d|down)     winIDs=$(echo "${winIDs}" | xargs wattr xi | sort -n | sed "0,/${focID:-NONE}/d" | sed "1s/^[0-9]* //p;d");;
+  esac
+
+  echo -en "${winIDs}"
+}
+
+main "${@}"

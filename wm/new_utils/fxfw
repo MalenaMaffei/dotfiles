@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+scriptName=$(basename $0)
+source "${scriptDir}/config"
+
+function usage(){
+  cat <<EOF
+  ${scriptName} <options>
+
+  Find and execute for windows
+
+    -?  options   Same as fndw
+    -c  command   Any with windowIDs as trailing params
+EOF
+  exit 1
+}
+
+function main(){
+  local OPTIND
+
+  local winCmd=
+  local debug=0
+  local findParams=''
+
+  [[ "$#" -eq 0 ]] && >&2 usage
+
+  while getopts "c:d:e:f:h:o:p:s:t:" opt; do
+    case $opt in
+      c) winCmd="${OPTARG}";;
+      d) debug="${OPTARG}";;
+      *) findParams+="-${opt} ${OPTARG} "
+    esac
+  done
+
+  [[ "${winCmd}" ]] || >&2 usage
+
+  ./fndw ${findParams} | xargs ${winCmd}
+}
+
+main "${@}"
