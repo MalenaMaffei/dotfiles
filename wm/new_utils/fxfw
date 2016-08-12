@@ -35,7 +35,7 @@ function main(){
 
   [[ "${winCmd}" ]] || >&2 usage
 
-  ./fndw ${findParams} | xargs ${winCmd}
+  "${scriptDir}/fndw" ${findParams} | xargs ${winCmd}
 }
 
 main "${@}"

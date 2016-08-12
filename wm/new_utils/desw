@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+scriptName=$(basename $0)
+source "${scriptDir}/config"
+
+function usage(){
+  cat <<EOF
+  ${scriptName} <WID> [.. <WID>]
+
+  Destroy window
+EOF
+  exit 1
+}
+
+function main(){
+  local winIDs="${@}"
+
+  [[ "$#" -eq 0 ]] && >&2 usage
+
+  for winID in "${winIDs[@]}"; do
+    # Skip non-existing windows
+    [[ $(wattr "${winID}") ]] && continue
+    killwa "${winID}"
+  done
+
+  "${scriptDir}/efwf"
+}
+
+main "${@}"

@@ -99,6 +99,7 @@ export -f setupWindow
 
 function main(){
   wew | while IFS=':' read eventID winID; do
+    continue
     case ${eventID} in
       16) setupWindow "${winID}";;
       #19) mapWindow "${winID}";;

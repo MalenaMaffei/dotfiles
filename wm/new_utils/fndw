@@ -52,12 +52,15 @@ function main(){
   onlyCond=$(echo "${onlyCond}" | tr ' ' '\|')
 
   local winIDs=$(lsw)
-  [[ "${focID}" ]] || focID=$(pfw)
+  
+  if [[ "${histCond}" == 'p' ]] || [[ "${histCond}" == 'n' ]] || [[ "${posCond}" != '' ]]; then
+    [[ "${focID}" ]] || focID=$(pfw)
 
-  wattr "${focID}"
-  if [[ $? -eq 1 ]]; then
-    1>&2 echo "Error: Window \"${focID}\" does not exist."
-    return 1
+    wattr "${focID}"
+    if [[ $? -eq 1 ]]; then
+      1>&2 echo "Error: Window \"${focID}\" does not exist."
+      return 1
+    fi
   fi
 
   [[ "${histCond}" && "${onlyCond}" ]] && onlyCond+="\|${focID}"

@@ -13,8 +13,15 @@ super + Escape
 
 # foc(us) w(indow) l(eft)/r(ight)/u(p)/d(own)/p(rev)/n(ext)
 # Example focw u
-super + {a,d,w,s,q,e,z,x}
-  focw {l,r,u,d,p,n,b,e}
+super + {a,d,w,s}
+  ~/dotfiles/wm/new_utils/stwf $(~/dotfiles/wm/new_utils/fndw -p {l,r,u,d})
+super + {q,e,z,x}
+  ~/dotfiles/wm/new_utils/stwf $(~/dotfiles/wm/new_utils/fndw -h {p,n,f,l})
+#super + {a,d,w,s,q,e,z,x}
+#  focw {l,r,u,d,p,n,b,e}
+
+super + shift + m
+  focw e
 
 # mov(e) w(indow) l(eft)/r(ight)/u(p)/d(own) inc(+)/dec(-)/to(=) ?px/?% <WID> [.. <WID>]
 # Example: movw d 5% $(pfw)
@@ -46,10 +53,11 @@ super + ctrl + {1-9}
 # p(erform) t(agged) w(indow) a(ction) <tag> <cmd>
 # Example: ptwa 0 killw
 super + {1-9}
-  ptwa {1-9} mapw -t
-super + shift + {1-9}
-  ptwa {1-9} killw; \
-  tagc {1-9}
+  ptwa {1-9} mapw -t; \
+  ~/dotfiles/wm/new_utils/efwf
+#super + shift + {1-9}
+#  ptwa {1-9} killwa; \
+#  tagc {1-9}
 
 # mo(dify) w(indow) s(tacking order) inc(+)/dec(-)/to(=)/f(ront)/b(ack) ? <WID> [.. <WID>]
 # Example: mows + 1 $(pfw)

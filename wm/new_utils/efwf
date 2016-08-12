@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+scriptName=$(basename $0)
+source "${scriptDir}/config"
+
+function usage(){
+  cat <<EOF
+  ${scriptName} <WID> [.. <WID>]
+
+  Enforce window focus
+EOF
+  exit 1
+}
+
+function main(){
+  local focID=$(pfw)
+
+  #wattr "${focID}" ||notify-send "Focus lost!"
+
+  wattr "${focID}" || focID=$("${scriptDir}/fndw" -h p)
+  wattr "${focID}" || focID=$(lsw | head -n 1)
+  wattr "${focID}" && "${scriptDir}/stwf" "${focID}"
+}
+
+main "${@}"

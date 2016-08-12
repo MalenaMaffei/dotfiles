@@ -30,6 +30,7 @@ function main(){
         bkpw "${winID}"
         mapw -m "${winID}"
         wtp "${PAD_LEFT}" "${PAD_TOP}" "${rootW}" "${rootH}" "${winID}"
+        chwb -s "${WIN_BORDER}" "${winID}"
       ;;
       'f')
         if [[ -f "${wmWinFS}" ]]; then
@@ -39,6 +40,7 @@ function main(){
         bkpw "${winID}"
         mapw -m "${winID}"
         wtp $(wattr xywh `lsw -r`) "${winID}"
+        chwb -s 0 "${winID}"
 
         echo "${winID}" > "${wmWinFS}"
       ;;

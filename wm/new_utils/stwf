@@ -29,8 +29,9 @@ function main(){
 
   chwso -r "${winID}" # Put window on top
   wtf "${winID}" # Set keyboard focus
-  wmp -a $(wattr xy "${winID}") # move the mouse cursor to
-  wmp -r "$((winW /2))" "$((winH /2))" # .. its center
+  #wmp -a $(wattr xy "${winID}") # move the mouse cursor to
+  #wmp -r "$((winW /2))" "$((winH /2))" # .. its center
+  #modw a "${winID}" # Maximize window
 
   eval "$(xres2var)"
   local focCol="0xFF$(echo "${base0F}" | tr -d '#')"
