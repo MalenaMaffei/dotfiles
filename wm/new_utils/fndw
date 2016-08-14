@@ -73,6 +73,8 @@ function main(){
   [[ "${exceptCond}" ]] && winIDs=$(echo "${winIDs}" | grep -v -E "${exceptCond}")
   [[ "${onlyCond}" ]] && winIDs=$(echo "${winIDs}" | grep -E "${onlyCond}")
 
+  #notify-send "Hist: ${histCond} | Pos: ${posCond}"
+
   case "${histCond}" in
     f|first)    winIDs=$(echo "${winIDs}" | head -n 1);;
     l|last)     winIDs=$(echo "${winIDs}" | tail -n 1);;

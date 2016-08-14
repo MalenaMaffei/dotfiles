@@ -8,7 +8,7 @@
 
 # Kill window
 super + Escape
-  killwa $(pfw)
+  ~/dotfiles/wm/new_utils/desw $(pfw)
   #kill $(xprop -id $(pfw) | grep PID | cut -b25-)
 
 # foc(us) w(indow) l(eft)/r(ight)/u(p)/d(own)/p(rev)/n(ext)
@@ -19,9 +19,6 @@ super + {q,e,z,x}
   ~/dotfiles/wm/new_utils/stwf $(~/dotfiles/wm/new_utils/fndw -h {p,n,f,l})
 #super + {a,d,w,s,q,e,z,x}
 #  focw {l,r,u,d,p,n,b,e}
-
-super + shift + m
-  focw e
 
 # mov(e) w(indow) l(eft)/r(ight)/u(p)/d(own) inc(+)/dec(-)/to(=) ?px/?% <WID> [.. <WID>]
 # Example: movw d 5% $(pfw)
@@ -112,7 +109,8 @@ super + shift + comma
   notify-send 'Restarted "sxhkd".'
    
 super + Return
-  termite
+  termite; \
+  ~/dotfiles/wm/new_utils/efwf
   
 #super + Home
 #  nautilus

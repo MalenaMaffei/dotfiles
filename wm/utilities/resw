@@ -11,6 +11,8 @@ function main(){
   shift; shift; shift # clear above args
   local winIDs="${@}" # other args should be windows
 
+  #echo "1: ${resDir} 2: ${resMod} 3:${resVal} 4:${winIDs}"
+
   # if value is in percentage, calculate it now
   if [[ "${resVal}" == *% ]]; then
     resVal=$(echo "${resVal}" | tr -d '%')
@@ -32,25 +34,29 @@ function main(){
   [[ "${resVal}" == *px ]] && resVal=$(echo "${resVal}" | tr -d 'px')
 
   for winID in "${winIDs[@]}"; do
-    local winW=$(wattr w "${winID}")
-    local winH=$(wattr h "${winID}")
+    #local winW=$(wattr w "${winID}")
+    #local winH=$(wattr h "${winID}")
 
     #echo "win ${winID} size ${winW}x${winH}"
 
+    local addW=0
+    local addH=0
+
     if [[ "${resDir}" == 'l' && "${resMod}" == '+' ]] || [[ "${resDir}" == 'r' && "${resMod}" == '-' ]]; then
-      winW=$((winW - resVal))
+      addW=$((0 - resVal))
     elif [[ "${resDir}" == 'l' && "${resMod}" == '-' ]] || [[ "${resDir}" == 'r' && "${resMod}" == '+' ]]; then
-      winW=$((winW + resVal))
+      addW="${resVal}"
     elif [[ "${resDir}" == 'w' && "${resMod}" == '=' ]]; then
-      winW=$((resVal))
+      addW=$((resVal - winW))
     elif [[ "${resDir}" == 'u' && "${resMod}" == '+' ]] || [[ "${resDir}" == 'd' && "${resMod}" == '-' ]]; then
-      winH=$((winH - resVal))
+      addH=$((0 - resVal))
     elif [[ "${resDir}" == 'u' && "${resMod}" == '-' ]] || [[ "${resDir}" == 'd' && "${resMod}" == '+' ]]; then
-      winH=$((winH + resVal))
+      addH="${resVal}"
     elif [[ "${resDir}" == 'h' && "${resMod}" == '=' ]]; then
-      winH=$((resVal))
+      addH=$((resVal - winH))
     fi
-    wrs -a "${winW}" "${winH}" "${winID}"
+
+    wrs "${addW}" "${addH}" "${winID}"
     #echo "win ${winID} resize ${winW}x${winH}"
   done
 }
