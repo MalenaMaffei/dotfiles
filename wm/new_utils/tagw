@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+scriptName=$(basename $0)
+source "${scriptDir}/config"
+
+function usage(){
+cat <<EOF
+  ${scriptName} <options>
+
+  Find windows
+
+    -a  Action (add|delete|toggle|set|clear|show|hide|close)
+    -t  Tag(s)
+    -w  Window(s)
+    -d  Debug (cli|popup)
+EOF
+  exit 1
+}
+
+function main(){
+  local OPTIND
+
+  local actType=''
+  local tagIDs=''
+  local winIDs=''
+
+  while getopts "a:d:t:w:" opt; do
+    case $opt in
+      a) actType="${OPTARG}";;
+      d) debug="${OPTARG}";;
+      t) tagIDs="${OPTARG}";;
+      w) winIDs="${OPTARG}";;
+    esac
+  done
+
+  [[ -z "${actType}" ]] && usage
+
+  
+  for tagID in "${tagIDs}"; do
+    local tagDir="${wmTags}/${tagID}"
+    local tagState="${wmTags}/${tagID}.state"
+
+    if [[ ! -z "${winIDs}" ]]; then
+      for winID in "${winIDs}"; do
+        local winAct="${actType}"
+
+        if [[  "${winAct}" == 's' ]] || [[ "${winAct}" == 'set' ]]; then
+          [[ -d "${tagDir}" ]] && rm -rf "${tagDir}"
+        elif [[  "${winAct}" == 't' ]] || [[ "${winAct}" == 'toggle' ]]; then
+          [[ -f "${tagDir}/${winID}" ]] && winAct='d' || winAct='a'
+        fi
+
+        [[ ! -d "${tagDir}" ]] && mkdir -p "${tagDir}"
+
+        case "${winAct}" in
+          a|add|s|set) [[ ! -f "${tagDir}/${winID}" ]] && touch "${tagDir}/${winID}";;
+          c|clear) [[ -d "${tagDir}" ]] && rm -rf "${tagDir}";;
+          d|del) [[ -f "${tagDir}/${winID}" ]] && rm "${tagDir}/${winID}";;
+        esac
+      done
+    else
+      case "${actType}" in
+        h|hide) sed -i 's/v/h/g' "${tagState}" && "${scriptDir}/fxfw" -t "${tagID}" -c 'mapw -u ';;
+        s|show) sed -i 's/h/v/g' "${tagState}" && "${scriptDir}/fxfw" -t "${tagID}" -c 'mapw -m ';;
+        c|close) "${scriptDir}/fxfw" -t "${tagID}" -c "${scriptDir}/desw " && rm -rf "${tagDir}" && rm "${tagState}";;
+      esac
+    fi
+
+    # Remove tag if no more windows are mapped to it
+    [[ $(find "${tagDir}" -maxdepth 0 -type d -empty 2>/dev/null) ]] && rm -rf "${tagDir}"
+    [[ -d "${tagDir}" ]] && [[ ! -f "${tagState}" ]] && echo 'v;' > "${tagState}"
+  done
+}
+
+main ${@}

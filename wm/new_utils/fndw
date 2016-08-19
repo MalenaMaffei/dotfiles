@@ -31,6 +31,7 @@ function main(){
   local stateCond=''
   local onlyCond=''
   local exceptCond=''
+  local winIDs=''
 
   local debug=0
 
@@ -51,7 +52,14 @@ function main(){
   exceptCond=$(echo "${exceptCond}" | tr ' ' '\|')
   onlyCond=$(echo "${onlyCond}" | tr ' ' '\|')
 
-  local winIDs=$(lsw)
+  if [[ ! -z "${tagCond}" ]]; then
+    for tagID in "${tagCond}"; do
+      local tagDir="${wmTags}/${tagID}"
+      winIDs+=$(cd "${tagDir}"; find '.' -mindepth 1 -maxdepth 1 -type f | tr -d './')
+    done
+  else
+    winIDs=$(lsw)
+  fi
   
   if [[ "${histCond}" == 'p' ]] || [[ "${histCond}" == 'n' ]] || [[ "${posCond}" != '' ]]; then
     [[ "${focID}" ]] || focID=$(pfw)

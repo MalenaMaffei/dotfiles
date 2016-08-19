@@ -56,6 +56,9 @@ super + {1-9}
 #  ptwa {1-9} killwa; \
 #  tagc {1-9}
 
+super + shift + {1-9}
+  ~/dotfiles/wm/new_utils/tagw -t {1-9} -a close
+
 # mo(dify) w(indow) s(tacking order) inc(+)/dec(-)/to(=)/f(ront)/b(ack) ? <WID> [.. <WID>]
 # Example: mows + 1 $(pfw)
 #super + shift + {e,q}

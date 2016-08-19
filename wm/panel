@@ -22,6 +22,7 @@ function get_tags(){
   local workSpaces=$(bspc wm -g)
   cd '/tmp/.wm/tags'
   for tagName in *; do
+    [[ ! -f "${tagName}" ]] && continue
     #local tagState=$(head -c 1 "${tagName}")
 
     #if [[ "${tagState}" == 's' ]]; then
