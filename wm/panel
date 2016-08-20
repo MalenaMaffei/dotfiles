@@ -22,14 +22,14 @@ function get_tags(){
   local workSpaces=$(bspc wm -g)
   cd '/tmp/.wm/tags'
   for tagName in *; do
-    [[ ! -f "${tagName}" ]] && continue
-    #local tagState=$(head -c 1 "${tagName}")
+    [[ -f "${tagName}" ]] && continue
+    local tagState=$(head -c 1 "${tagName}.state")
 
-    #if [[ "${tagState}" == 's' ]]; then
+    if [[ "${tagState}" == 'v' ]]; then
       echo -n "%{F${COLOR_ACTIVE}}"
-    #else
-    #  echo -n "%{F${COLOR_INACTIVE}}"
-    #fi
+    else
+      echo -n "%{F${COLOR_INACTIVE}}"
+    fi
     echo -n "${tagName} "
     echo -n "%{F-}"
   done

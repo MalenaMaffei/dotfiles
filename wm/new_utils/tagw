@@ -60,15 +60,30 @@ function main(){
         esac
       done
     else
-      case "${actType}" in
-        h|hide) sed -i 's/v/h/g' "${tagState}" && "${scriptDir}/fxfw" -t "${tagID}" -c 'mapw -u ';;
-        s|show) sed -i 's/h/v/g' "${tagState}" && "${scriptDir}/fxfw" -t "${tagID}" -c 'mapw -m ';;
-        c|close) "${scriptDir}/fxfw" -t "${tagID}" -c "${scriptDir}/desw " && rm -rf "${tagDir}" && rm "${tagState}";;
+      local tagAct="${actType}"
+
+      if [[ "${tagAct}" == 't' ]] || [[ "${tagAct}" == 'toggle' ]]; then
+        local stateTxt=$(head -n 1 "${tagState}")
+        local visState=$(echo "${stateTxt}" | cut -d ';' -f 1)
+
+        if [[ "${visState}" == 'v' ]]; then
+          tagAct="h"
+        else
+          tagAct='s'
+        fi
+      fi
+
+      case "${tagAct}" in
+        h|hide) [[ -f "${tagState}" ]] && sed -i 's/v/h/g' "${tagState}" && "${scriptDir}/fxfw" -t "${tagID}" -c 'mapw -u ';;
+        s|show) [[ -f "${tagState}" ]] && sed -i 's/h/v/g' "${tagState}" && "${scriptDir}/fxfw" -t "${tagID}" -c 'mapw -m ';;
+        c|close) [[ -d "${tagDir}" ]] && "${scriptDir}/fxfw" -t "${tagID}" -c "${scriptDir}/desw " && rm -rf "${tagDir}" && rm "${tagState}";;
       esac
     fi
 
     # Remove tag if no more windows are mapped to it
-    [[ $(find "${tagDir}" -maxdepth 0 -type d -empty 2>/dev/null) ]] && rm -rf "${tagDir}"
+    [[ $(find "${tagDir}" -maxdepth 0 -type d -empty 2>/dev/null) ]] && rm -rf "${tagDir}" && rm "${tagState}"
+
+    # Add state file if tag has windows but no state file
     [[ -d "${tagDir}" ]] && [[ ! -f "${tagState}" ]] && echo 'v;' > "${tagState}"
   done
 }

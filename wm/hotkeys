@@ -45,19 +45,23 @@ super + shift + {y,x,d,f}
 
 # tag w(indow) <tag> add(+)/delete(-)/toggle(?)/set(=) <WID> [.. <WID>]
 super + ctrl + {1-9}
-  tagw {1-9} ? $(pfw)
+  ~/dotfiles/wm/new_utils/tagw -t {1-9} -a toggle -w $(pfw)
 
 # p(erform) t(agged) w(indow) a(ction) <tag> <cmd>
 # Example: ptwa 0 killw
 super + {1-9}
-  ptwa {1-9} mapw -t; \
+  ~/dotfiles/wm/new_utils/tagw -t {1-9} -a toggle; \
   ~/dotfiles/wm/new_utils/efwf
+
+#super + {1-9}
+#  ptwa {1-9} mapw -t; \
+#  ~/dotfiles/wm/new_utils/efwf
 #super + shift + {1-9}
 #  ptwa {1-9} killwa; \
 #  tagc {1-9}
 
-super + shift + {1-9}
-  ~/dotfiles/wm/new_utils/tagw -t {1-9} -a close
+#super + shift + {1-9}
+#  ~/dotfiles/wm/new_utils/tagw -t {1-9} -a close
 
 # mo(dify) w(indow) s(tacking order) inc(+)/dec(-)/to(=)/f(ront)/b(ack) ? <WID> [.. <WID>]
 # Example: mows + 1 $(pfw)

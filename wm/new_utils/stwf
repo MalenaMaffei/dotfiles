@@ -36,8 +36,8 @@ function main(){
   eval "$(xres2var)"
   local focCol="0xFF$(echo "${base0F}" | tr -d '#')"
   local othCol="0xFF$(echo "${base01}" | tr -d '#')"
-  chwb -c "${focCol}" -s "${WIN_BORDER}" "${winID}"
   chwb -c "${othCol}" -s "${WIN_BORDER}" $(lsw | grep -v "${winID}")
+  chwb -c "${focCol}" -s "${WIN_BORDER}" "${winID}"
 }
 
 main "${@}"

@@ -55,6 +55,7 @@ function main(){
   if [[ ! -z "${tagCond}" ]]; then
     for tagID in "${tagCond}"; do
       local tagDir="${wmTags}/${tagID}"
+      [[ ! -d "${tagDir}" ]] && continue
       winIDs+=$(cd "${tagDir}"; find '.' -mindepth 1 -maxdepth 1 -type f | tr -d './')
     done
   else
