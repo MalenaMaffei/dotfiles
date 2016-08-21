@@ -50,8 +50,7 @@ super + ctrl + {1-9}
 # p(erform) t(agged) w(indow) a(ction) <tag> <cmd>
 # Example: ptwa 0 killw
 super + {1-9}
-  ~/dotfiles/wm/new_utils/tagw -t {1-9} -a toggle; \
-  ~/dotfiles/wm/new_utils/efwf
+  ~/dotfiles/wm/new_utils/tagw -t {1-9} -a toggle
 
 #super + {1-9}
 #  ptwa {1-9} mapw -t; \
@@ -107,8 +106,8 @@ super + alt + {w,s,a,d,q,e,z,x,c}
 # --------------------------------------------------------
 
 # Lock, Logoff, Shutdown, Hibernate, Reboot
-super + shift + {k,l,n,h,o}
-  {lkur,lour,sdpc,hnpc,rbpc}
+super + shift + {k,l,n,h,o,u}
+  {lkur,lour,sdpc,hnpc,rbpc,spdc}
 
 # Reload bindings
 super + shift + comma

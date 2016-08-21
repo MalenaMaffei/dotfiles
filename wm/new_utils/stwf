@@ -27,6 +27,10 @@ function main(){
   local winW=$(wattr w "${winID}")
   local winH=$(wattr h "${winID}")
 
+  local rootID=$(lsw -r)
+  local rootW=$(wattr w "${rootID}")
+  local rootH=$(wattr h "${rootID}")
+
   chwso -r "${winID}" # Put window on top
   wtf "${winID}" # Set keyboard focus
   #wmp -a $(wattr xy "${winID}") # move the mouse cursor to
@@ -34,10 +38,17 @@ function main(){
   #modw a "${winID}" # Maximize window
 
   eval "$(xres2var)"
-  local focCol="0xFF$(echo "${base0F}" | tr -d '#')"
-  local othCol="0xFF$(echo "${base01}" | tr -d '#')"
+  local focCol="0xFF$(echo "${!ACTIVE_BORDER}" | tr -d '#')"
+  local othCol="0xFF$(echo "${!NORMAL_BORDER}" | tr -d '#')"
   chwb -c "${othCol}" -s "${WIN_BORDER}" $(lsw | grep -v "${winID}")
-  chwb -c "${focCol}" -s "${WIN_BORDER}" "${winID}"
+
+  # If window is not fullscreen, give it a border
+  if [[ "${winW}" -lt "${rootW}" ]] || [[ "${winH}" -lt "${rootH}" ]]; then
+    chwb -c "${focCol}" -s "${WIN_BORDER}" "${winID}"
+  # Window is fullscreen, remove border
+  else
+    chwb -c "${focCol}" -s 0 "${winID}"
+  fi
 }
 
 main "${@}"

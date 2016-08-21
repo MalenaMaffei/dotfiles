@@ -24,24 +24,27 @@ function main(){
   local actType=''
   local tagIDs=''
   local winIDs=''
+  local hasWin=0
 
   while getopts "a:d:t:w:" opt; do
     case $opt in
       a) actType="${OPTARG}";;
       d) debug="${OPTARG}";;
       t) tagIDs="${OPTARG}";;
-      w) winIDs="${OPTARG}";;
+      w)
+        hasWin=1
+        winIDs="${OPTARG}"
+      ;;
     esac
   done
 
   [[ -z "${actType}" ]] && usage
-
   
   for tagID in "${tagIDs}"; do
     local tagDir="${wmTags}/${tagID}"
     local tagState="${wmTags}/${tagID}.state"
 
-    if [[ ! -z "${winIDs}" ]]; then
+    if [[ "${hasWin}" -eq 1 ]]; then
       for winID in "${winIDs}"; do
         local winAct="${actType}"
 

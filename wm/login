@@ -9,6 +9,6 @@
 #[[ ! $(pgrep 'gpg-agent') ]]        && gpg-connect-agent reloadagent /bye
 [[ ! $(pgrep -f 'wm/displays') ]] && (~/dotfiles/wm/xwait ~/dotfiles/wm/displays) &
 #[[ ! $(pgrep -f 'wm/walpaper') ]] && (~/dotfiles/wm/wallpaper) &
-[[ ! $(pgrep -f 'wm/panl') ]] && (~/dotfiles/wm/xwait 1 ~/dotfiles/wm/panel) &
+[[ ! $(pgrep -f 'wm/panel') ]] && (~/dotfiles/wm/xwait 1 ~/dotfiles/wm/panel) &
 
 notify-send -u 'low' 'User is logged in.'

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+# Firefox popups
+
+exit 1

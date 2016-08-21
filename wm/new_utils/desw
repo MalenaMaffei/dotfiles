@@ -33,8 +33,6 @@ function main(){
       "${scriptDir}/tagw" -t "${tagID}" -a del -w "${winID}"
     done
   done
-
-  "${scriptDir}/efwf"
 }
 
 main "${@}"

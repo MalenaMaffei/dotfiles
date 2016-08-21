@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+winType=$(xprop -id "${1}" '_NET_WM_WINDOW_TYPE' | grep -v 'not found' | cut -d '=' -f 2)
+
+[[ "${winType}" == *DIALOG* ]] && exit 1

@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+scriptDir=$(dirname `realpath -P "$0"`)
+scriptName=$(basename $0)
+
 # KEY_PRESS .......... 2
 # KEY_RELEASE ........ 3
 # BUTTON_PRESS ....... 4
@@ -90,6 +93,12 @@ function closeWindow(){
   focw p
 }
 
+function onVisible(){
+  local winID="${1}"
+
+  #notify-send "onVisible: ${winID}"
+}
+
 #function closeWindow(){
 #  focw p
 #  echo
@@ -99,9 +108,8 @@ export -f setupWindow
 
 function main(){
   wew | while IFS=':' read eventID winID; do
-    continue
     case ${eventID} in
-      16) setupWindow "${winID}";;
+      16) onVisible "${winID}";;
       #19) mapWindow "${winID}";;
       #18) closeWindow "${winID}";;
     esac

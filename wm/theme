@@ -41,4 +41,7 @@ killCmd 'dunst'
 
 thm2sys
 
+# Update window borders
+# stwf $(pfw)
+
 notify-send -u low "Theme changed."

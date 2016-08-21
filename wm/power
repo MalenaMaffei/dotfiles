@@ -4,10 +4,11 @@
 function lour(){
   notify-send -u critical 'User is logging off.'
   sleep "${1:-1}"
-  local winMan=$(grep 'exec' "${HOME}/.xinitrc" | tail -n 1 | awk -F ' ' '{print $2}')
-  local winPID=$(pgrep -f "${winMan}")
-  killall bash
-  kill "${winPID}"
+  #local winMan=$(grep 'exec' "${HOME}/.xinitrc" | tail -n 1 | awk -F ' ' '{print $2}')
+  #local winPID=$(pgrep -f "${winMan}")
+  #killall bash
+  #kill "${winPID}"
+  kill $(pgrep -f 'wm/xwait') $(pgrep -f 'wm/xcheck')
 }
 
 # l(oc)k u(se)r
@@ -38,4 +39,10 @@ function rbpc(){
   systemctl reboot
 }
 
-export -f lour lkur sdpc hnpc rbpc
+function spdc(){
+  notify-send -u critical 'Computer is suspending.'
+  sleep "${1:-1}"
+  systemctl suspend
+}
+
+export -f lour lkur sdpc hnpc rbpc spdc
