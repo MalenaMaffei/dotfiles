@@ -16,16 +16,18 @@ EOF
 function main(){
   local focID=$(pfw)
 
-  #wattr "${focID}" && exit 0 || notify-send "Focus lost!"
+  # If a focused window exists, skip
+  wattr "${focID}" && exit 0
 
   # Focus previous window if possible
-  wattr "${focID}" || focID=$("${scriptDir}/fndw" -h p)
+  focID=$("${scriptDir}/fndw" -h p)
+  wattr "${focID}" && "${scriptDir}/stwf" "${focID}" && exit 0
 
-  # Focus first window if possible
-  wattr "${focID}" || focID=$("${scriptDir}/fndw" -h l)
+  # Focus last window if possible
+  focID=$("${scriptDir}/fndw" -h l)
+  wattr "${focID}" && "${scriptDir}/stwf" "${focID}" && exit 0
 
-  # Focus window if we have any
-  wattr "${focID}" && "${scriptDir}/stwf" "${focID}"
+  exit 1
 }
 
 main "${@}"

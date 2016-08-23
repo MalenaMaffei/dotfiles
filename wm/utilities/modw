@@ -13,11 +13,11 @@ function main(){
     case "${winAct}" in
       'h')
         bkpw "${winID}"
-        mapw -u "${winID}"
+        #mapw -u "${winID}"
       ;;
       'd')
         rstw "${winID}"
-        mapw -m "${winID}"
+        #mapw -m "${winID}"
       ;;
       'a')
         local rootWin=$(lsw -r)
@@ -27,22 +27,24 @@ function main(){
         local rootW=$((rootW - PAD_LEFT - PAD_RIGHT - (2 * WIN_BORDER)))
         local rootH=$((rootH - PAD_TOP - PAD_BOT - (2 * WIN_BORDER)))
 
-        bkpw "${winID}"
-        mapw -m "${winID}"
+        #bkpw "${winID}"
+        #mapw -m "${winID}"
         wtp "${PAD_LEFT}" "${PAD_TOP}" "${rootW}" "${rootH}" "${winID}"
         chwb -s "${WIN_BORDER}" "${winID}"
+        #"${scriptDir}/../new_utils/stwf" "${winID}"
       ;;
       'f')
-        if [[ -f "${wmWinFS}" ]]; then
-          rstw $(cat "${wmWinFS}")
-        fi
+        #if [[ -f "${wmWinFS}" ]]; then
+          #rstw $(cat "${wmWinFS}")
+        #fi
 
-        bkpw "${winID}"
-        mapw -m "${winID}"
+        #bkpw "${winID}"
+        #mapw -m "${winID}"
         wtp $(wattr xywh `lsw -r`) "${winID}"
         chwb -s 0 "${winID}"
+        #"${scriptDir}/../new_utils/stwf" "${winID}"
 
-        echo "${winID}" > "${wmWinFS}"
+        #echo "${winID}" > "${wmWinFS}"
       ;;
     esac
   done

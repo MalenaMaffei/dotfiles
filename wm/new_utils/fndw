@@ -99,6 +99,8 @@ function main(){
   esac
 
   echo -en "${winIDs}"
+
+  [[ -z "${winIDs}" ]] && exit 1
 }
 
 main "${@}"

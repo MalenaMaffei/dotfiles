@@ -68,7 +68,16 @@ function onCreate(){
 }
 
 function onDestroy(){
-  return
+  local winID="${1}"
+  local tagIDs=$(cd /tmp/.wm/tags && ls */${winID} 2>/dev/null | xargs dirname | sort -u)
+
+  # Skip tag deletion if no tag was found
+  [[ $? -gt 0 ]] && continue
+
+  # Continue with tag deletion
+  for tagID in "${tagIDs}"; do
+    "${scriptDir}/tagw" -t "${tagID}" -a del -w "${winID}"
+  done
 }
 
 function onEnter(){
@@ -76,7 +85,7 @@ function onEnter(){
 }
 
 function onMap(){
-  return
+  "${scriptDir}/efwf"
 }
 
 function onUnmap(){
@@ -93,9 +102,9 @@ function main(){
     case ${eventID} in
       #15) onVisible "${winID}";;
       16) onCreate "${winID}";;
-      #17) onDestroy "${winID}";;
+      17) onDestroy "${winID}";;
       18) onUnmap "${winID}";;
-      #19) onMap "${winID}";;
+      19) onMap "${winID}";;
     esac
   done
 }
