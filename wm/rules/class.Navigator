@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
-# Firefox
+winID="${1}"
+eventName="${2}"
 
-modw a "${1}"
+case "${eventName}" in
+  'onMap') modw a "${winID}";;
+esac

@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
-winType=$(xprop -id "${1}" '_NET_WM_WINDOW_TYPE' | grep -v 'not found' | cut -d '=' -f 2)
+winID="${1}"
+eventName="${2}"
+winType=$(xprop -id "${winID}" '_NET_WM_WINDOW_TYPE' | grep -v 'not found' | cut -d '=' -f 2)
 
-[[ "${winType}" == *DIALOG* ]] && exit 1
+case "${eventName}" in
+  'onCreate') [[ "${winType}" == *DIALOG* ]] && exit 1;;
+esac

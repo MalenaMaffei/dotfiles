@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
-# Firefox popups
+winID="${1}"
+eventName="${2}"
 
-exit 1
+case "${eventName}" in
+  'onCreate') exit 1;;
+esac
