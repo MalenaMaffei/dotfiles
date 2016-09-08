@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+re='^[0-9]+$'
+[[ "${1}" =~ ${re} ]] && sleep "${1}" && shift
+
+prog="${1}"; shift
+shortName=$(basename "${prog}")
+
+#echo "[DEBUG] ${prog} ARGS [${@}]"
+
+[[ -z "${prog}" ]] && exit 1
+
+while :; do
+  ${prog} ${@}
+  notify-send -u 'low' "Restarted \"${shortName}\"."
+  sleep 1s;
+done

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+scriptDir=$(dirname `realpath -P "$0"`)
+
 while [[ 1 ]]; do
   xrandrOut=$(xrandr)
 
@@ -9,7 +11,6 @@ while [[ 1 ]]; do
 
   activeDisplays=$(echo "${xrandrOut}" | grep " connected" | sed -e "s/\([A-Z0-9]\+\) connected.*/\1/" | tr '\n' ' ')
   displayFile='/tmp/.displays'
-  desktopFile='/tmp/.desktop'
   primaryDisplay=""
 
   if [[ -f "${displayFile}" ]]; then
@@ -47,22 +48,14 @@ while [[ 1 ]]; do
       fi
     done
 
-    echo "$(bspc query -D -d)" > "${desktopFile}"
     ${cmd}
 
     echo "${activeDisplays}" > "${displayFile}"
-    ~/.config/bspwm/bspwmrc 'refresh'
   fi
 
-  if  [[ "${1}" == 'once' ]]; then
-    break
+  if [[ "${change}" == "yes" ]]; then
+    sleep 4
   else
-    if [[ "${change}" == "yes" ]]; then
-      sleep 4
-    else
-      sleep 1
-    fi
+    sleep 1
   fi
 done
-
-echo "${primaryDisplay}"

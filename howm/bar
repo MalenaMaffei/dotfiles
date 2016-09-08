@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+# Write xresource colors to variables
+eval "$(xres2var)"
+PANEL_BG="${base01}"
+COLOR_INACTIVE="${base03}"
+COLOR_ACTIVE="${base0F}"
+COLOR_URGENT="${base08}"
+
+PANEL_FIFO="/tmp/howm.fifo"
+HOWM_LOG="${HOME}/.config/howm/out.log"
+HOWM_REGEX='^(([[:digit:]]+:)+[[:digit:]]+ ?)+$'
+
+[[ -p "${PANEL_FIFO}" ]] || mkfifo -m 666 "${PANEL_FIFO}"
+
+ws=("term" "vim" "www" "chat" "media")
+lay=("▣" "▦" "▥" "▤")
+bg="#333333"
+
+while read -t 10 -r out || true; do
+    if [[ "${out}" =~ ${HOWM_REGEX} ]]; then
+        unset r
+        IFS=':' read -r l w s c <<< "${out}"
+        r+=" ${lay[$l]} | "
+        r+="${ws[$w - 1]}"
+        r="${r%::*}"
+    fi
+    printf "%s%s\n" "$r" " | $(date +"%F %R") "
+done < "${PANEL_FIFO}" | lemonbar -d -f "${NORMAL_FONT}:size=${FONT_SIZE}" -f "${SYMBOL_FONT}:size=${FONT_SIZE}" -B "${PANEL_BG}" -F "${COLOR_ACTIVE}" -g "x${PANEL_HEIGHT}" &
+# pass output to fifo
+howm -c ~/.config/howm/howmrc 1> "${PANEL_FIFO}" 2> "${HOWM_LOG}"

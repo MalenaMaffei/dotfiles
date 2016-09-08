@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+
+# Lock, Logoff, Shutdown, Hibernate, Reboot
+super + shift + {k,l,n,h,o,u}
+  ~/.config/bash/power/{lkur,lour,sdpc,hnpc,rbpc,spdc}
+
+# Reload bindings
+super + shift + comma
+  killall -USR1 sxhkd; \
+  notify-send 'Restarted "sxhkd".'
+   
+super + Return
+  termite
+  
+#super + Home
+#  nautilus
+
+super + period
+  ~/.config/bash/scripts/dmenu-fm
+
+super + comma
+  ~/.config/bash/scripts/dmenu-mp
+
+# program launcher
+super + space
+  ~/.config/bash/scripts/dmenu-ex
+
+super + ctrl + space
+  ~/.config/bash/scripts/dmenu-pw
+
+## Audio Volume Keys
+XF86AudioRaiseVolume
+  amixer -q sset Master 5%+
+
+XF86AudioLowerVolume
+  amixer -q sset Master 5%-
+
+XF86AudioMute
+  amixer -q sset Master toggle
+
+## Audio Playback Keys
+{XF86AudioPrev, XF86AudioNext, XF86AudioPlay}
+  playerctl {previous,next,play-pause}
+
+## Brightness Keys
+XF86MonBrightnessUp
+  xbacklight -inc 10
+
+XF86MonBrightnessDown
+  xbacklight -dec 10
+
+# Reload displays
+#super + d
+#  rm /tmp/.displays
+
+# Start screen recording
+ctrl + alt + r
+  ~/.config/bash/scripts/record
+
+# Stop screen recording
+ctrl + alt + x
+  pkill -f 'x11grab'
+
+# screenshot
+{_,ctrl +,shift +} @Print
+  ~/.config/bash/scripts/scrot {_,window,area}
+
+# change wallpaper and create theme from it
+#ctrl + shift + w
+#  ~/.config/bspwm/change_theme 'y'

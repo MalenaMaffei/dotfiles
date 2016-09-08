@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+notify-send -u critical 'User is locking.'
+sleep "${1:-1}"
+physlock

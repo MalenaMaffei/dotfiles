@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-~/.config/bspwm/change_theme 'y' &
-#[[ ! $(pgrep -f 'panel') ]] && ~/.config/bspwm/panel &
-
-sleep 5
-[[ ! $(pgrep -f 'bspwm/displays') ]] && ~/.config/bspwm/displays &

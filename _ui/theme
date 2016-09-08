@@ -1,9 +1,17 @@
 #!/usr/bin/env bash
 
+function killCmd(){
+  #kill $(pgrep -f "${1}" -a | grep -v -E 'xwait|xcheck' | head -n 1 | cut -d ' ' -f 1)
+  local pids=$(pgrep -f "${1}" -a | grep -v -E 'xwait|xcheck' | cut -d ' ' -f 1 | tr '\n' ' ')
+  
+  [[ "${pids}" == '' ]] && return
+  kill ${pids}
+}
+
 scriptDir=$(dirname `realpath -P "$0"`)
 
-if [[ "${1}" != '' && "${1}" != 'n' ]]; then
-  "${scriptDir}/change_wallpaper" "${1}"
+if [[ "${1}" != 'n' ]]; then
+  "${scriptDir}/wallpaper" "${1}"
 fi
 
 notify-send -u low "Changing theme."
@@ -28,21 +36,12 @@ font2sys
 eval "$(xres2var)"
 
 # Update panel
-kill $(pgrep -f panel) 2>&1 >/dev/null
-~/.config/bspwm/panel &
-
-# Update bspwm
-bspc config active_border_color "${base06}"
-bspc config focused_border_color "${base06}"
-bspc config normal_border_color "${base01}"
-bspc config presel_border_color "${base0C}"
-bspc config urgent_border_color "${base08}"
-
-# Update dunst
-
-[[ $(pgrep 'dunst') ]] && kill $(pgrep dunst)
-dunst &
+killCmd 'wm/panel'
+killCmd 'dunst'
 
 thm2sys
+
+# Update window borders
+# stwf $(pfw)
 
 notify-send -u low "Theme changed."

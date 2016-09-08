@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+
+# Generate hotkey file
+export WM_NAME="${1}"
+"${scriptDir}"/hotkeys
+
+# Change desktop theme
+"${scriptDir}"/theme 'y'
+
+[[ ! $(pgrep 'sxhkd') ]] && ("${scriptDir}"/xwait sxhkd -c ~/.config/sxhkd/sxhkdrc) &
+[[ ! $(pgrep 'dunst') ]] && ("${scriptDir}"/xwait dunst -c ~/.config/dunst/dunstrc) &
+[[ ! $(pgrep 'compton') ]] && ("${scriptDir}"/xcheck compton -b --config ~/.config/compton/compton.conf) &
+[[ ! $(pgrep 'mpd') ]] && ("${scriptDir}"/xcheck mpd) &
+#[[ ! $(pgrep 'gpg-agent') ]]        && gpg-connect-agent reloadagent /bye
+[[ ! $(pgrep -f 'wm/displays') ]] && ("${scriptDir}"/xwait "${scriptDir}"/displays) &
+#[[ ! $(pgrep -f 'wm/walpaper') ]] && ("${scriptDir}"/wallpaper) &
+[[ ! $(pgrep -f 'wm/panel') ]] && ("${scriptDir}"/xwait 1 "${scriptDir}"/panel) &
+
+notify-send -u 'low' 'User is logged in.'

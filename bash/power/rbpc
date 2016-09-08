@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+notify-send -u critical 'Computer is rebooting.'
+sleep "${1:-1}"
+systemctl reboot

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+scriptDir=$(dirname `realpath -P "$0"`)
+
 # Write xresource colors to variables
 eval "$(xres2var)"
 
@@ -16,7 +18,7 @@ SYMBOL_FULL=""
 SYMBOL_CHARGING=""
 SYMBOL_DISCHARGING=""
 
-bspc config top_padding "${PANEL_HEIGHT}"
+#bspc config top_padding "${PANEL_HEIGHT}"
 
 function get_workspaces(){
   local workSpaces=$(bspc wm -g)
@@ -43,17 +45,23 @@ function get_workspaces(){
     fi
     #echo -ne "${ws:1} " # print workspaces to conky
   done
+}
 
-  # for i in `seq 1 10`; do
-  #   if [[ ${urgentWS} -eq ${i} ]]; then
-  #     echo -n "%{F${COLOR_URGENT}}${SYMBOL_WORKSPACE_URGENT} "
-  #   elif [[ ${activeWS} -ne ${i} ]]; then 
-  #     echo -n "%{F${COLOR_INACTIVE}}${SYMBOL_WORKSPACE_NORMAL} "
-  #   else
-  #     echo -n "%{F${COLOR_ACTIVE}}${SYMBOL_WORKSPACE_ACTIVE} "
-  #   fi
-  #   echo -n "%{F-}"
-  # done
+function get_tags(){
+  local workSpaces=$(bspc wm -g)
+  cd '/tmp/.wm/tags'
+  for tagName in *; do
+    [[ -f "${tagName}" ]] && continue
+    local tagState=$(head -c 1 "${tagName}.state")
+
+    if [[ "${tagState}" == 'v' ]]; then
+      echo -n "%{F${COLOR_ACTIVE}}"
+    else
+      echo -n "%{F${COLOR_INACTIVE}}"
+    fi
+    echo -n "${tagName} "
+    echo -n "%{F-}"
+  done
 }
 
 function get_power(){
@@ -176,4 +184,4 @@ while [[ 1 ]]; do
   echo -n "%{r}$(get_power) | $(get_network) | $(get_volume) | %{F${COLOR_ACTIVE}} $(date +%X) "
   echo ""
   sleep 0.15
-done | lemonbar -f "${NORMAL_FONT}:size=${FONT_SIZE}" -f "${SYMBOL_FONT}:size=${FONT_SIZE}" -B "${PANEL_BG}" -F "${COLOR_ACTIVE}" -g "x${PANEL_HEIGHT}"
+done | lemonbar -d -f "${NORMAL_FONT}:size=${FONT_SIZE}" -f "${SYMBOL_FONT}:size=${FONT_SIZE}" -B "${PANEL_BG}" -F "${COLOR_ACTIVE}" -g "x${PANEL_HEIGHT}"

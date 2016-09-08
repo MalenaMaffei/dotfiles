@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+
+tail -n +2 "${scriptDir}/keys/basic" > "${scriptDir}/keys/current"
+tail -n +2 "${scriptDir}/keys/${WM_NAME}" >> "${scriptDir}/keys/current"
+
+rm ~/.config/sxhkd/sxhkdrc
+ln -s "${scriptDir}/keys/current" ~/.config/sxhkd/sxhkdrc

@@ -3,6 +3,6 @@
 winID="${1}"
 eventName="${2}"
 
-case "${eventName}" in
-  'onMap') snaw c "${winID}";;
-esac
+#case "${eventName}" in
+  #'onMap') snaw c "${winID}";;
+#esac

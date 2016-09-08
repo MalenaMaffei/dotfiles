@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+[[ "${1}" =~ '^[0-9]+$' ]] && sleep "${1}" && shift
+
+prog="${1}"; shift
+shortName=$(basename "${prog}")
+
+[[ -z "${prog}" ]] && exit 1
+
+${prog} ${@}
+
+while :; do
+  sleep 1s
+  [[ $(pgrep -f "${prog}") ]] && continue
+  ${prog} ${@}
+  notify-send -u 'low' "Restarted \"${shortName}\"."
+done
