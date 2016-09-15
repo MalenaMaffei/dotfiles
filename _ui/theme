@@ -36,10 +36,14 @@ font2sys
 eval "$(xres2var)"
 
 # Update panel
-killCmd 'wm/panel'
+killCmd '_ui/panel'
 killCmd 'dunst'
 
 thm2sys
+
+bspc config active_border_color "${base05}"
+bspc config focused_border_color "${base0F}"
+bspc config normal_border_color "${base03}"
 
 # Update window borders
 # stwf $(pfw)

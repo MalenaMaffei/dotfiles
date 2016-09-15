@@ -63,7 +63,7 @@ function main(){
   fi
   
   if [[ "${histCond}" == 'p' ]] || [[ "${histCond}" == 'n' ]] || [[ "${posCond}" != '' ]]; then
-    [[ "${focID}" ]] || focID=$(pfw)
+    [[ -z "${focID}" ]] && focID=$(pfw)
 
     wattr "${focID}"
     if [[ $? -eq 1 ]]; then
@@ -87,15 +87,15 @@ function main(){
   case "${histCond}" in
     f|first)    winIDs=$(echo "${winIDs}" | head -n 1);;
     l|last)     winIDs=$(echo "${winIDs}" | tail -n 1);;
-    p|previous) winIDs=$(echo "${winIDs}" | grep -v "${focID:-NONE}" | sed '$ p;d');;
-    n|next)     winIDs=$(echo "${winIDs}" | grep -v "${focID:-NONE}" | sed '1 p;d');;
+    p|previous) winIDs=$(echo "${winIDs}" | grep -v "${focID}" | sed '$ p;d');;
+    n|next)     winIDs=$(echo "${winIDs}" | grep -v "${focID}" | sed '1 p;d');;
   esac
 
   case "${posCond}" in
-    l|left)     winIDs=$(echo "${winIDs}" | xargs wattr xi | sort -nr | sed "0,/${focID:-NONE}/d" | sed "1s/^[0-9]* //p;d");;
-    r|right)    winIDs=$(echo "${winIDs}" | xargs wattr yi | sort -n | sed "0,/${focID:-NONE}/d" | sed "1s/^[0-9]* //p;d");;
-    u|up)       winIDs=$(echo "${winIDs}" | xargs wattr yi | sort -nr | sed "0,/${focID:-NONE}/d" | sed "1s/^[0-9]* //p;d");;
-    d|down)     winIDs=$(echo "${winIDs}" | xargs wattr xi | sort -n | sed "0,/${focID:-NONE}/d" | sed "1s/^[0-9]* //p;d");;
+    l|left)     winIDs=$(echo "${winIDs}" | xargs wattr xi | sort -nr | sed "/${focID}/d" | sed "1s/^[0-9]* //p;d");;
+    r|right)    winIDs=$(echo "${winIDs}" | xargs wattr yi | sort -n | sed "/${focID}/d" | sed "1s/^[0-9]* //p;d");;
+    u|up)       winIDs=$(echo "${winIDs}" | xargs wattr yi | sort -nr | sed "/${focID}/d" | sed "1s/^[0-9]* //p;d");;
+    d|down)     winIDs=$(echo "${winIDs}" | xargs wattr xi | sort -n | sed "/${focID}/d" | sed "1s/^[0-9]* //p;d");;
   esac
 
   echo -en "${winIDs}"

@@ -19,12 +19,23 @@ xset dpms 600 1200 1800 &
 
 #~/code/shell/awde/src/statusbar.bash &
 
+rm /tmp/.desktop
 rm /tmp/.displays
 rm /tmp/.wallpaper
 
 echo 'Starting Window-Manager' >> ~/.xinit.log
 
-#exec bspwm 1> ~/.bspwm.out 2> ~/.bspwm.err
+# WORKAROUND FIX ME!
+(sleep 2 && bash ~/.config/bspwm/bspwmrc) &
 
-~/dotfiles/wm/login &
-exec ~/dotfiles/wm/xblock
+~/dotfiles/_ui/login 'bspwm'
+exec bspwm 1> ~/.bspwm.out 2> ~/.bspwm.err
+#-c ~/.config/bspwm/bspwmrc
+
+#rm ~/.config/howm/sxhkdrc
+#ln -s ~/.config/howm/sxhkdrc_normal ~/.config/howm/sxhkdrc
+#sxhkd -c ~/.config/howm/sxhkdrc &
+#exec ~/.config/howm/bar
+
+#~/dotfiles/_ui/login &
+#exec ~/dotfiles/wm/xblock

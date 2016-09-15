@@ -3,13 +3,20 @@
 scriptDir=$(dirname `realpath -P "$0"`)
 source "${scriptDir}/config"
 
-# foc(us) w(indow) l(eft)/r(ight)/u(p)/d(own)/p(rev)/n(ext)/b(egining)/e(nd) [<WID>]
+# foc(us) w(indow) l(eft)/r(ight)/u(p)/d(own)/p(rev)/n(ext)/b(egining)/e(nd)/<WID> [<REL-WID>]
 function main(){
   local winID="${1}"
-  local curID=$(pfw)
+  local curID="${2}"
 
-  #[[ "${winID}" == '' ]] && winID=$(pfw)
+  [[ -z "${winID}" ]] && { echo "focw: no window to focus" >&2; return 1; }
 
+  [[ -z "${curID}" ]] && curID=$(pfw)
+
+  # If we try to use positional argument on a non-existing window,
+  #  exit silently
+  [[ "${winID}" == *lrudnp* && ! $(wattr "${curID}") ]] && return 1
+
+  echo "PRE: ${winID}"
   #notify-send "[focw]: act:${winID} - pfw:${curID}"
 
   case "${winID}" in
@@ -24,6 +31,8 @@ function main(){
     0x*) wattr "${winID}" || return 1;;
   esac
 
+  echo "AFTER: ${winID}"
+
   #case $1 in
   #  next) wid=$(lsw|grep -v $CUR|sed '1 p;d') ;;
   #  prev) wid=$(lsw|grep -v $CUR|sed '$ p;d') ;;
@@ -31,7 +40,7 @@ function main(){
   #  *) usage ;;
   #esac
 
-  [ -z "${winID}" ] && { echo "focw: no window to focus" >&2; return 1; }
+  [[ $(wattr "${winID}") ]] && { echo "focw: no window to focus" >&2; return 1; }
 
   chwso -r "${winID}"
   wtf "${winID}"
