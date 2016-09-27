@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+scriptName=$(basename $0)
+
+main(){
+  #source "${t}/settings"
+  "${scriptDir}/load-theme" "$(basename ${t})"
+  cp "${HOME}/themes/loaded"/* "${t}"
+  cp "${HOME}/themes/templates"/* "${t}"
+
+  local IFS=' '
+  read -r -a colors < "${t}/palette.txt"
+
+  local baseNames='base00 base01 base02 base03 base04 base05 base06 base07 base08 base09 base0A base0B base0C base0D base0E base0F'
+
+  local i=0
+  for bn in ${baseNames}; do
+    #declare "${!bn}"=${colors[i]}
+    sed -i 's|{{'${bn}'}}|'${colors[i]}'|g' "${t}/preview.htm"
+    i=$((i +1))
+  done
+
+  local g=$(cat "${t}/generated")
+  local wp=$(echo "${g}" | cut -d ';' -f 1)
+
+  sed -i 's|{{theme}}|'"$(basename ${t})"'|g' "${t}/preview.htm"
+  sed -i 's|{{wallpaper}}|'"${wp}"'|g' "${t}/preview.htm"
+
+  rm "${HOME}/themes/loaded"/*
+}
+
+for t in "${HOME}/themes/desktop/"*; do
+  [[ "${t}" == */random ]] && continue
+  [[ -f "${t}/generated" ]] && continue
+  main "${t}"
+done

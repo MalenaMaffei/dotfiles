@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Extract 16 dominant colors from an image
+
+main(){
+  # Taken from http://softwarerecs.stackexchange.com/a/14652
+  [[ ! -f "${1}" ]] && return 1
+
+  convert "${1}" -colors 16 -depth 8 -format '%c' histogram:info:- \
+    | sort --reverse --numeric-sort \
+    | gawk 'match ($0, /^ *[0-9]+: \([^)]+\) (#[0-9A-F]+) .+$/, a) { print a[1] }'
+}
+
+if [[ -f "${1}" ]]; then
+  main "${1}"
+else
+  while read f; do
+    main "${f}"
+    echo '&'
+  done < /dev/stdin
+fi

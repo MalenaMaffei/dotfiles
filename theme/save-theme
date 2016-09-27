@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+scriptName=$(basename $0)
+
+main(){
+  local td="${HOME}/themes/desktop/${1}"
+  local ad="${HOME}/themes/loaded"
+
+  [[ -d "${td}" ]] && return 1
+  mkdir -p "${td}"
+
+  echo "#!/usr/bin/env bash" > "${td}/settings"
+  echo "" >> "${td}/settings"
+  echo "wallpaper=\"$(readlink ${ad}/wallpaper | sed 's|'${HOME}'|${HOME}|g')\"" >> "${td}/settings"
+
+  if [[ -e "${ad}/color-palette.txt" ]]; then
+    echo "colorscheme=\"$(readlink ${ad}/color-palette.txt | xargs dirname | sed 's|'${HOME}'|${HOME}|g')\"" >> "${td}/settings"
+    echo "mergecolors=\"$(readlink ${ad}/merge-palette.txt | xargs dirname | sed 's|'${HOME}'|${HOME}|g')\"" >> "${td}/settings"
+  else
+    echo "colorscheme=\"$(readlink ${ad}/palette.txt | xargs dirname | sed 's|'${HOME}'|${HOME}|g')\"" >> "${td}/settings"
+    echo "mergecolors=\"\"" >> "${td}/settings"
+  fi
+
+  echo "" >> "${td}/settings"
+  echo "export wallpaper colorscheme mergecolors" >> "${td}/settings"
+
+  echo "Saved theme: ${1}"
+}
+
+main ${@}

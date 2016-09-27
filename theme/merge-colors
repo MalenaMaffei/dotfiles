@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+main(){
+  local l="${1}"
+  local r="${2}"
+
+  [[ ! -f "${l}" || ! -f "${r}" ]] && exit 1
+
+  local lc=$(cat "${l}" | tr ' ' '\n')
+  local rc=$(cat "${r}" | tr ' ' '\n' | tail -n +4 | head -n 8 | sort -R)
+
+  echo -e "${lc}\n${rc}"
+}
+
+main ${@}

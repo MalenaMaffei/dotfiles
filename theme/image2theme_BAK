@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+scriptName=$(basename $0)
+
+main(){
+  [[ ! -f "${1}" ]] && return 1
+
+  local c=$("${scriptDir}/image2colors" "${1}")
+
+  mkdir -p 'image-colors'
+  cd 'image-colors'
+
+  echo "${c}" | "${scriptDir}/colors2palette"
+  echo "${c}" | "${scriptDir}/colors2preview"
+
+  cd - >/dev/null
+
+  local t=$("${scriptDir}/merge-colors" "greystyle.txt" "image-colors/palette.txt")
+
+  mkdir -p 'theme'
+  cd 'theme'
+
+  echo "${t}" | "${scriptDir}/colors2palette"
+  echo "${t}" | "${scriptDir}/colors2preview"
+}
+
+if [[ -f "${1}" ]]; then
+  main "${1}"
+else
+  while read f; do
+    main "${f}"
+    echo '&'
+  done < /dev/stdin
+fi

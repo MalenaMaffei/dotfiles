@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+function main(){
+  while read c; do
+    echo -n "${c} "
+  done > "palette.txt"
+}
+
+main

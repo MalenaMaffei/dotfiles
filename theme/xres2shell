@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Reads current Xresources and loads them as variables into the current shell
+
+xRes="${1:-$HOME/.Xresources}"
+
+# Use like: eval "$(xres2shell)"
+grep -o -E 'base0[0-9|A-F] #[0-9|a-z|A-Z]*' "${xRes}" | awk -F ' ' '{print $1"=\""$2"\""}'

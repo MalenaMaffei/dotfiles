@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+scriptName=$(basename $0)
+
+main(){
+  [[ ! -f "${1}" ]] && return 1
+
+  local c=$("${scriptDir}/image2colors" "${1}")
+  local h=$(echo "${c}" | md5sum | awk -F ' ' '{print $1}')
+
+  mkdir -p "${HOME}/themes/colors/${h}"
+  cd "${HOME}/themes/colors/${h}"
+
+  echo "${c}" | "${scriptDir}/colors2palette"
+  echo "${c}" | "${scriptDir}/colors2preview"
+}
+
+if [[ -f "${1}" ]]; then
+  main "${1}"
+else
+  while read f; do
+    main "${f}"
+  done < /dev/stdin
+fi

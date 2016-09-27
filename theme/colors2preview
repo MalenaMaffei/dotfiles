@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Save colors into preview file
+
+main(){
+  while read color; do
+    convert -size 50x50 "xc:$color" +depth miff:-
+  done | montage - -geometry +0+0 -font 'DejaVu-Sans' "preview.png"
+
+  echo "Created: preview.png"
+}
+
+if [[ -f "${1}" ]]; then
+  cat "${1}" | main
+else
+  main < /dev/stdin
+fi
