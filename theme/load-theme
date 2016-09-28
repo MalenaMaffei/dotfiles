@@ -6,33 +6,41 @@ scriptName=$(basename $0)
 [[ -z "${1}" ]] && exit 1
 
 main(){
-  [[ ! -d "${HOME}/themes/desktop/${1}" ]] && return 1
+  [[ ! -d "${HOME}/styles/desktop/${1}" ]] && return 1
 
-  source "${HOME}/themes/desktop/${1}/settings"
+  source "${HOME}/styles/desktop/${1}/settings"
+
+  wallpaper="${wallpaper:-default}"
+  colorscheme="${colorscheme:-default}"
+  mergecolors="${mergecolors:-none}"
+  gtkscheme="${gtkscheme:-default}"
+  icontheme="${fontscheme:-default}"
+  fontscheme="${fontscheme:-default}"
+  dominance="${dominance:-auto}"
 
   echo "Wallpaper: \"${wallpaper}\""
   echo "Colorscheme: \"${colorscheme}\""
   echo "Merge Colors: \"${mergecolors}\""
 
-  [[ -d "${HOME}/themes/loaded" ]] && rm "${HOME}/themes/loaded"/* || mkdir -p "${HOME}/themes/loaded"
+  [[ -d "${HOME}/styles/cache" ]] && rm "${HOME}/styles/cache"/* || mkdir -p "${HOME}/styles/cache"
 
-  ln -s "${wallpaper}" "${HOME}/themes/loaded/wallpaper"
+  ln -s "${wallpaper}" "${HOME}/styles/cache/wallpaper"
 
   for f in "${colorscheme}"/*; do
-    ln -s "${f}" "${HOME}/themes/loaded/$(basename ${f})"
+    ln -s "${f}" "${HOME}/styles/cache/$(basename ${f})"
   done
 
   if [[ ! -z "${mergecolors}" ]]; then
-    mv "${HOME}/themes/loaded/palette.txt" "${HOME}/themes/loaded/color-palette.txt"
-    ln -s "${mergecolors}/palette.txt" "${HOME}/themes/loaded/merge-palette.txt"
-    rm "${HOME}/themes/loaded/preview.png"
+    mv "${HOME}/styles/cache/palette.txt" "${HOME}/styles/cache/color-palette.txt"
+    ln -s "${mergecolors}/palette.txt" "${HOME}/styles/cache/merge-palette.txt"
+    rm "${HOME}/styles/cache/preview.png"
 
-    local p=$("${scriptDir}/merge-colors" "${HOME}/themes/loaded/merge-palette.txt" "${HOME}/themes/loaded/color-palette.txt")
-    (cd "${HOME}/themes/loaded" && echo "${p}" | "${scriptDir}/colors2palette")
-    (cd "${HOME}/themes/loaded" && echo "${p}" | "${scriptDir}/colors2preview")
+    local p=$("${scriptDir}/merge-colors" "${HOME}/styles/cache/merge-palette.txt" "${HOME}/styles/cache/color-palette.txt")
+    (cd "${HOME}/styles/cache" && echo "${p}" | "${scriptDir}/colors2palette")
+    (cd "${HOME}/styles/cache" && echo "${p}" | "${scriptDir}/colors2preview")
   fi
 
-  echo "${wallpaper};${colorscheme};${mergecolors}" > "${HOME}/themes/loaded/generated"
+  echo "${wallpaper};${colorscheme};${mergecolors}" > "${HOME}/styles/cache/generated"
 }
 
 main ${@}

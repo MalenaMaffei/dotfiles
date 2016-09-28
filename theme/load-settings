@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+scriptDir=$(dirname `realpath -P "$0"`)
+scriptName=$(basename $0)
+
+[[ -z "${1}" ]] && exit 1
+[[ ! -d "${HOME}/styles/desktop/${1}" ]] && exit 1
+
+source "${HOME}/styles/desktop/${1}/settings"
+
+wallpaper="${wallpaper:-default}"
+colorscheme="${colorscheme:-default}"
+mergecolors="${mergecolors:-none}"
+gtkscheme="${gtkscheme:-default}"
+icontheme="${fontscheme:-default}"
+fontscheme="${fontscheme:-default}"
+dominance="${dominance:-auto}"
+
+if [[ "${dominance}" == 'auto' ]]; then
+  source "${scriptDir}/color-utils"
+  if [[ $(cat "${colorscheme}/palette.txt" | set2dom) ]]; then
+    dominance='light'
+  else
+    dominance='dark'
+  fi
+fi
+
+export wallpaper colorscheme mergecolors gtkscheme icontheme fontscheme dominance

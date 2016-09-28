@@ -9,8 +9,8 @@ main(){
   local c=$("${scriptDir}/image2colors" "${1}")
   local h=$(echo "${c}" | md5sum | awk -F ' ' '{print $1}')
 
-  mkdir -p "${HOME}/themes/colors/${h}"
-  cd "${HOME}/themes/colors/${h}"
+  mkdir -p "${HOME}/styles/colors/${h}"
+  cd "${HOME}/styles/colors/${h}"
 
   echo "${c}" | "${scriptDir}/colors2palette"
   echo "${c}" | "${scriptDir}/colors2preview"

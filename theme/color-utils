@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+
+hex2rgb(){
+  local hexcode=$(echo "${1}" | tr -d '#' | tr '[:lower:]' '[:upper:]')
+
+  for val in ${hexcode:0:2} ${hexcode:2:2} ${hexcode:4:2}; do
+    printf "%3d " "0x$val"
+  done
+}
+
+rgb2hex(){
+  printf \#%02X%02X%02X "${1}" "${2}" "${3}"
+}
+
+# Color to brightness
+col2bn(){
+  local hexinput=$(echo "${1}" | tr -d '#' | tr '[:lower:]' '[:upper:]') #uppercaseing
+
+  local r=$(echo $hexinput | cut -c-2)
+  local g=$(echo $hexinput | cut -c3-4)
+  local b=$(echo $hexinput | cut -c5-6)
+
+  local r=`echo "ibase=16; $r" | bc`
+  local g=`echo "ibase=16; $g" | bc`
+  local b=`echo "ibase=16; $b" | bc`
+
+  # Human eye based light level
+  # http://stackoverflow.com/a/596241
+  #echo "scale=0; (${r}+${r}+${b}+${g}+${g}+${g})/6" | bc -s
+
+  # Average light level
+  echo "scale=0; (${r}+${g}+${b})/3" | bc -s
+}
+
+# Find dominance in a single color
+# bright (RC=1) or dark (RC=0)
+col2dom(){
+  if [[ "$(col2bn ${1})" -ge 128 ]]; then
+    return 1
+  else
+    return 0
+  fi
+}
+
+# Find dominance in a set of colors
+# bright (RC=1) or dark (RC=0)
+set2dom(){
+  local i=0
+  local b=0
+  local a=0
+
+  while read c; do
+    a=$(col2dom "${c}")
+    b=$((b + $?))
+    i=$((i +1))
+  done < /dev/stdin
+
+  [[ ${i} -eq 1 ]] && return ${b}
+
+  local h=$(echo "scale=0; ${i}/2" | bc -s)
+
+  if [[ "${a}" -gt "${h}" ]]; then
+    return 1
+  else
+    return 0
+  fi
+}

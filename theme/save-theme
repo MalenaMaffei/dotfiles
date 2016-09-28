@@ -4,8 +4,8 @@ scriptDir=$(dirname `realpath -P "$0"`)
 scriptName=$(basename $0)
 
 main(){
-  local td="${HOME}/themes/desktop/${1}"
-  local ad="${HOME}/themes/loaded"
+  local td="${HOME}/styles/desktop/${1}"
+  local ad="${HOME}/styles/cache"
 
   [[ -d "${td}" ]] && return 1
   mkdir -p "${td}"

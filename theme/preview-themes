@@ -6,8 +6,8 @@ scriptName=$(basename $0)
 main(){
   #source "${t}/settings"
   "${scriptDir}/load-theme" "$(basename ${t})"
-  cp "${HOME}/themes/loaded"/* "${t}"
-  cp "${HOME}/themes/templates"/* "${t}"
+  cp "${HOME}/styles/cache"/* "${t}"
+  cp "${HOME}/styles/templates"/* "${t}"
 
   local IFS=' '
   read -r -a colors < "${t}/palette.txt"
@@ -27,10 +27,10 @@ main(){
   sed -i 's|{{theme}}|'"$(basename ${t})"'|g' "${t}/preview.htm"
   sed -i 's|{{wallpaper}}|'"${wp}"'|g' "${t}/preview.htm"
 
-  rm "${HOME}/themes/loaded"/*
+  rm "${HOME}/styles/cache"/*
 }
 
-for t in "${HOME}/themes/desktop/"*; do
+for t in "${HOME}/styles/desktop/"*; do
   [[ "${t}" == */random ]] && continue
   [[ -f "${t}/generated" ]] && continue
   main "${t}"
